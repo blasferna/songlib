@@ -159,7 +159,7 @@ CKEDITOR_CONFIGS = {
     'lyrics_config': {
         'toolbar': 'Custom',
         'toolbar_Custom': [
-            ['Bold', 'Italic'],
+            ['Format', 'Bold', 'Italic'],
             ['RemoveFormat'],
         ],
         'removePlugins': 'elementspath',
