@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "rest_framework",
+    "ckeditor",
     "app",
 ]
 
@@ -153,3 +154,15 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+CKEDITOR_CONFIGS = {
+    'lyrics_config': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic'],
+            ['RemoveFormat'],
+        ],
+        'removePlugins': 'elementspath',
+    }
+}
+

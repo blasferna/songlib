@@ -37,7 +37,7 @@
             <label for="page-break-{{ song.id }}">{% trans "Page break after this song" %}:</label>
             <input id="page-break-{{ song.id }}" type="checkbox" {% if song.page_break_after %}checked{% endif %} onchange="updateFormatting({{ song.id }})">
         </form>
-        <pre id="song-{{ song.id }}" style="font-size: {{ song.font_size }}px; {% if song.page_break_after %}page-break-after: always;{% endif %}">{{ song.song.lyrics }}</pre>
+        <div id="song-{{ song.id }}" style="font-size: {{ song.font_size }}px; {% if song.page_break_after %}page-break-after: always;{% endif %}">{{ song.song.lyrics|safe }}</div>
     {% endfor %}    
 
     <script>

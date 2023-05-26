@@ -1,5 +1,6 @@
-from django.db import models
+from ckeditor.fields import RichTextField
 from django.conf import settings
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
@@ -30,7 +31,7 @@ class Song(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, verbose_name=_("category")
     )
-    lyrics = models.TextField(_("lyrics"))
+    lyrics = lyrics = RichTextField(config_name='lyrics_config', verbose_name=_("lyrics"))
     tags = models.ManyToManyField(Tag, blank=True)
 
     def __str__(self):
