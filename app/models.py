@@ -60,6 +60,8 @@ class SetListSong(models.Model):
     order = models.PositiveIntegerField(_("order"))
     song = models.ForeignKey(Song, on_delete=models.CASCADE, verbose_name=_("song"))
     chord = models.CharField(max_length=20, verbose_name=_("chord"))
+    font_size = models.PositiveIntegerField(_("font size"), default=14) 
+    page_break_after = models.BooleanField(_("page break"), default=False)
 
     class Meta:
         ordering = ["order"]

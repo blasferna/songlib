@@ -30,11 +30,52 @@
     <h2>{% trans "Songs:" %}</h2>
     
     {% for song in songs %}
-        <h3 class="uppercase">{{ song.order }}. {{ song.song.title }} - ({{ song.chord }})</h3>
-        <form>
-            
+        <h3 class="uppercase" style="margin-top: 50px;">{{ song.order }}. {{ song.song.title }} - ({{ song.chord }})</h3>
+        <form class="formatting-form">
+            <label for="font-size-{{ song.id }}">{% trans "Font size" %}:</label>
+            <input id="font-size-{{ song.id }}" type="number" min="1" value="{{ song.font_size }}" onchange="updateFormatting({{ song.id }})">
+            <label for="page-break-{{ song.id }}">{% trans "Page break after this song" %}:</label>
+            <input id="page-break-{{ song.id }}" type="checkbox" {% if song.page_break_after %}checked{% endif %} onchange="updateFormatting({{ song.id }})">
         </form>
-        <pre class="text-lg song">{{ song.song.lyrics }}</pre>
+        <pre id="song-{{ song.id }}" style="font-size: {{ song.font_size }}px; {% if song.page_break_after %}page-break-after: always;{% endif %}">{{ song.song.lyrics }}</pre>
     {% endfor %}    
+
+    <script>
+        function updateFormatting(songId) {
+            const fontSize = document.getElementById('font-size-' + songId).value;
+            const pageBreak = document.getElementById('page-break-' + songId).checked;
+            const songElement = document.getElementById('song-' + songId);
+            
+            songElement.style.fontSize = fontSize + 'px';
+            songElement.style.pageBreakAfter = pageBreak ? 'always' : '';
+            
+            fetch('/api/setlistsongs/' + songId + '/', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    font_size: fontSize,
+                    page_break_after: pageBreak
+                })
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        </script>
 </body>
 </html>
