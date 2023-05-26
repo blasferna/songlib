@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 from .models import Category, SetList, SetListSong, Song, Tag
 
@@ -29,13 +30,13 @@ class SongAdmin(admin.ModelAdmin):
 
 @admin.register(SetList)
 class SetListAdmin(admin.ModelAdmin):
-    list_display = ('title', 'date', 'share_link',)
+    list_display = ('title', 'date', 'print_lint',)
 
-    def share_link(self, obj):
+    def print_lint(self, obj):
         url = reverse('setlist_detail', args=[obj.pk])
-        return format_html('<a href="{}">Compartir</a>', url)
+        return format_html('<a href="{}">{}</a>', url, _("Print"))
 
-    share_link.short_description = 'Compartir'
+    print_lint.short_description = _('Print')
 
     inlines = [SetListSongInline]
 

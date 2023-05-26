@@ -1,9 +1,40 @@
-<h1>{{ setlist.title }}</h1>
-<p>{{ setlist.date }}</p>
-
-<h2>Canciones:</h2>
-
-{% for song in songs %}
-    <h3>{{ song.order }}. {{ song.song.title }} - ({{ song.chord }})</h3>
-    <pre>{{ song.song.lyrics }}</pre>
-{% endfor %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{setlist.title}}</title>
+    <style>
+        .text-center {
+            text-align: center;
+        }
+        .text-lg {
+            font-size: 28px;
+        }
+        .uppercase {
+            text-transform: uppercase;
+        }
+        @media print {
+            form {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="text-center">
+    <h1>{{ setlist.title }}</h1>
+    <p>{{ setlist.date }}</p>
+    
+    <h2>{% trans "Songs:" %}</h2>
+    
+    {% for song in songs %}
+        <h3 class="uppercase">{{ song.order }}. {{ song.song.title }} - ({{ song.chord }})</h3>
+        <form>
+            
+        </form>
+        <pre class="text-lg song">{{ song.song.lyrics }}</pre>
+    {% endfor %}    
+</body>
+</html>

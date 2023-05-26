@@ -1,0 +1,99 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-26 13:32-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: app/admin.py:37 app/admin.py:39
+msgid "Print"
+msgstr "Imprimir"
+
+#: app/models.py:7 app/models.py:18
+msgid "name"
+msgstr "nombre"
+
+#: app/models.py:13
+msgid "Category"
+msgstr "Categoría"
+
+#: app/models.py:14
+msgid "Categories"
+msgstr "Categorías"
+
+#: app/models.py:24
+msgid "Tag"
+msgstr "Etiqueta"
+
+#: app/models.py:25
+msgid "Tags"
+msgstr "Etiquetas"
+
+#: app/models.py:29 app/models.py:45
+msgid "title"
+msgstr "título"
+
+#: app/models.py:31
+msgid "category"
+msgstr "categoría"
+
+#: app/models.py:33
+msgid "lyrics"
+msgstr "letras"
+
+#: app/models.py:40
+msgid "Song"
+msgstr "Canción"
+
+#: app/models.py:41
+msgid "Songs"
+msgstr "Canciones"
+
+#: app/models.py:46
+msgid "date"
+msgstr "fecha"
+
+#: app/models.py:52
+msgid "Set list"
+msgstr "Repertorio"
+
+#: app/models.py:53
+msgid "Set lists"
+msgstr "Repertorios"
+
+#: app/models.py:60
+msgid "order"
+msgstr "orden"
+
+#: app/models.py:61
+msgid "song"
+msgstr "canción"
+
+#: app/models.py:62
+msgid "chord"
+msgstr "acorde"
+
+#: app/models.py:66
+msgid "Set list song"
+msgstr "Canción por repertorio"
+
+#: app/models.py:67
+msgid "Set list songs"
+msgstr "Canciones por repertorio"
+
+#: templates/app/setlist_detail.html:6
+msgid "Songs:"
+msgstr "Canciones:"
