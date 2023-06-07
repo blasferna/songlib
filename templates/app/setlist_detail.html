@@ -20,6 +20,14 @@
             form {
                 display: none;
             }
+            .content {
+                column-count: 2;
+                -webkit-column-count: 2;
+                -moz-column-count: 2;
+            }
+            .song {
+                text-align: justify;
+            }
         }
     </style>
 </head>
@@ -29,6 +37,7 @@
     
     <h2>{% trans "Songs:" %}</h2>
     
+    <div class="content">
     {% for song in songs %}
         <h3 class="uppercase" style="margin-top: 50px;">{{ song.order }}. {{ song.song.title }} - ({{ song.chord }})</h3>
         <form class="formatting-form">
@@ -37,8 +46,9 @@
             <label for="page-break-{{ song.id }}">{% trans "Page break after this song" %}:</label>
             <input id="page-break-{{ song.id }}" type="checkbox" {% if song.page_break_after %}checked{% endif %} onchange="updateFormatting({{ song.id }})">
         </form>
-        <div id="song-{{ song.id }}" style="font-size: {{ song.font_size }}px; {% if song.page_break_after %}page-break-after: always;{% endif %}">{{ song.song.lyrics|safe }}</div>
+        <div id="song-{{ song.id }}" class="song" style="font-size: {{ song.font_size }}px; {% if song.page_break_after %}page-break-after: always;{% endif %}">{{ song.song.lyrics|safe }}</div>
     {% endfor %}    
+    </div>
 
     <script>
         function updateFormatting(songId) {
