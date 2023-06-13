@@ -5,3 +5,4 @@ django-environ
 psycopg2-binary
 djangorestframework
 django-ckeditor
+django-admin-sortable2

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
+    "adminsortable2",
     "rest_framework",
     "ckeditor",
     "app",

@@ -1,3 +1,4 @@
+from adminsortable2.admin import SortableAdminBase, SortableTabularInline
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
@@ -6,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import Category, SetList, SetListSong, Song, Tag
 
 
-class SetListSongInline(admin.TabularInline):
+class SetListSongInline(SortableTabularInline):
     model = SetListSong
     extra = 1
     autocomplete_fields = ['song']
@@ -29,7 +30,7 @@ class SongAdmin(admin.ModelAdmin):
     search_fields = ('title', 'lyrics',)
 
 @admin.register(SetList)
-class SetListAdmin(admin.ModelAdmin):
+class SetListAdmin(SortableAdminBase, admin.ModelAdmin):
     list_display = ('title', 'date', 'print_lint',)
 
     def print_lint(self, obj):
