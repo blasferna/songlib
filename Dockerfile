@@ -18,5 +18,7 @@ COPY . /code
 
 EXPOSE 80
 
+RUN python manage.py collectstatic --no-input
+
 CMD ["sh", "./runserver.sh"]
 
