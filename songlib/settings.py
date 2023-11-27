@@ -13,7 +13,15 @@ from pathlib import Path
 
 import environ
 
-env = environ.Env(DEBUG=(bool, False))
+env = environ.Env(
+    DEBUG=(bool, False),
+    SECRET_KEY=(str, "secret"),
+    DB_NAME=(str, ""),
+    DB_USER=(str, ""),
+    DB_PASS=(str, ""),
+    DB_HOST=(str, ""),
+    DB_PORT=(str, ""),
+)
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -134,9 +142,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-LOCALE_PATHS = (
-    BASE_DIR / "locale",
-)
+LOCALE_PATHS = (BASE_DIR / "locale",)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -157,13 +163,12 @@ STORAGES = {
 }
 
 CKEDITOR_CONFIGS = {
-    'lyrics_config': {
-        'toolbar': 'Custom',
-        'toolbar_Custom': [
-            ['Format', 'Bold', 'Italic'],
-            ['RemoveFormat'],
+    "lyrics_config": {
+        "toolbar": "Custom",
+        "toolbar_Custom": [
+            ["Format", "Bold", "Italic"],
+            ["RemoveFormat"],
         ],
-        'removePlugins': 'elementspath',
+        "removePlugins": "elementspath",
     }
 }
-
