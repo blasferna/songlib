@@ -1,4 +1,4 @@
-FROM --platform=$TARGETPLATFORM python:3.8.16-bullseye
+FROM --platform=$TARGETPLATFORM python:3.10.14-bullseye
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
