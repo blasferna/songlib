@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "adminsortable2",
     "rest_framework",
-    "ckeditor",
+    "django_prose_editor",
     "app",
 ]
 
@@ -164,15 +164,4 @@ STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
-}
-
-CKEDITOR_CONFIGS = {
-    "lyrics_config": {
-        "toolbar": "Custom",
-        "toolbar_Custom": [
-            ["Format", "Bold", "Italic"],
-            ["RemoveFormat"],
-        ],
-        "removePlugins": "elementspath",
-    }
 }

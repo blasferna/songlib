@@ -1,4 +1,4 @@
-from ckeditor.fields import RichTextField
+from django_prose_editor.fields import ProseEditorField
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -31,7 +31,34 @@ class Song(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, verbose_name=_("category")
     )
-    lyrics = lyrics = RichTextField(config_name='lyrics_config', verbose_name=_("lyrics"))
+    lyrics = ProseEditorField(
+        extensions={
+            # Core text formatting
+            "Bold": True,
+            "Italic": True,
+            "Strike": True,
+            "Underline": True,
+            "HardBreak": True,
+            # Structure
+            "Heading": {
+                "levels": [1, 2, 3]  # Only allow h1, h2, h3
+            },
+            "BulletList": True,
+            "OrderedList": True,
+            "Blockquote": True,
+            # Advanced extensions
+            "Link": {
+                "enableTarget": True,  # Enable "open in new window"
+                "protocols": ["http", "https", "mailto"],  # Limit protocols
+            },
+            "Table": True,
+            # Editor capabilities
+            "History": True,  # Enables undo/redo
+            "HTML": True,  # Allows HTML view
+            "Typographic": True,  # Enables typographic chars
+        },
+        sanitize=True,
+    )
     tags = models.ManyToManyField(Tag, blank=True)
 
     def __str__(self):
@@ -61,7 +88,7 @@ class SetListSong(models.Model):
     order = models.PositiveIntegerField(_("order"))
     song = models.ForeignKey(Song, on_delete=models.CASCADE, verbose_name=_("song"))
     chord = models.CharField(max_length=20, verbose_name=_("chord"))
-    font_size = models.PositiveIntegerField(_("font size"), default=14) 
+    font_size = models.PositiveIntegerField(_("font size"), default=14)
     page_break_after = models.BooleanField(_("page break"), default=False)
 
     class Meta:

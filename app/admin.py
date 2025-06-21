@@ -31,13 +31,18 @@ class SongAdmin(admin.ModelAdmin):
 
 @admin.register(SetList)
 class SetListAdmin(SortableAdminBase, admin.ModelAdmin):
-    list_display = ('title', 'date', 'print_lint',)
+    list_display = ('title', 'date', 'print_lint', 'export_as_txt',)
 
     def print_lint(self, obj):
         url = reverse('setlist_detail', args=[obj.pk])
         return format_html('<a href="{}">{}</a>', url, _("Print"))
 
     print_lint.short_description = _('Print')
+    
+    def export_as_txt(self, obj):
+        url = reverse('setlist_export_txt', args=[obj.pk])
+        return format_html('<a href="{}">{}</a>', url, _("Export as TXT"))
+    export_as_txt.short_description = _('Export as TXT')
 
     inlines = [SetListSongInline]
 

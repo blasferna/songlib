@@ -21,6 +21,7 @@
             form {
                 display: none;
             }
+            
             .content {
                 column-count: 2;
                 -webkit-column-count: 2;
@@ -31,6 +32,9 @@
             }
         }
 
+        @page {
+            size: {{page_size}};
+        }
 
         /* Change the look */
         :root {
@@ -186,6 +190,12 @@
     </style>
 </head>
 <body class="text-center">
+    <select id="page-size" onchange="updatePageSize()">
+        <option value="A4">A4</option>
+        <option value="letter">Letter</option>
+        <option value="legal">Legal</option>
+    </select>
+
     <h1>{{ setlist.title }}</h1>
     <p>{{ setlist.date }}</p>
     
@@ -240,6 +250,19 @@
             }
             return cookieValue;
         }
+
+        function updatePageSize(){
+            const pageSize = document.getElementById('page-size').value;
+            window.location.href = window.location.href.split('?')[0] + '?page_size=' + pageSize;
+        }
+
+        window.addEventListener('beforeprint', function() {
+            document.getElementById('page-size').style.display = 'none';
+        });
+        
+        window.addEventListener('afterprint', function() {
+            document.getElementById('page-size').style.display = 'initial';
+        });
         </script>
 </body>
 </html>
