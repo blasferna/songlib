@@ -25,6 +25,8 @@ djangorestframework==3.14.0
     # via songlib (pyproject.toml)
 gunicorn==21.2.0
     # via songlib (pyproject.toml)
+html2text==2025.4.15
+    # via songlib (pyproject.toml)
 nh3==0.2.21
     # via django-prose-editor
 packaging==23.2
