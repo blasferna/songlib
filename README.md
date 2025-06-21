@@ -10,10 +10,10 @@ SongLib is a personal Django web application designed to help me manage my song 
 
 1. Clone the repository to your local machine.
 2. Create a virtual environment and activate it.
-3. Install the required packages using `pip install -r requirements.txt`.
-4. Run migrations using `python manage.py migrate`.
-5. Create a superuser for the Django admin interface using `python manage.py createsuperuser`.
-6. Start the development server using `python manage.py runserver`.
+3. Install the required packages using `uv sync`.
+4. Run migrations using `uv run manage.py migrate`.
+5. Create a superuser for the Django admin interface using `uv run manage.py createsuperuser`.
+6. Start the development server using `uv run manage.py runserver`.
 7. Access the application at `localhost:8000`.
 
 ### Docker
