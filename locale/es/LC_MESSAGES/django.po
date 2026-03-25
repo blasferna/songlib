@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-26 14:10-0400\n"
+"POT-Creation-Date: 2026-03-25 19:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,98 +18,166 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: app/admin.py:37 app/admin.py:39
+#: app/admin.py:38 app/admin.py:40
 msgid "Print"
 msgstr "Imprimir"
 
-#: app/models.py:7 app/models.py:18
+#: app/admin.py:44 app/admin.py:45
+msgid "Export as TXT"
+msgstr "Exportar como TXT"
+
+#: app/admin.py:49 app/admin.py:50
+msgid "Reader"
+msgstr "Visor"
+
+#: app/models.py:6
+msgid "English (C, D, E…)"
+msgstr "Inglés (C, D, E…)"
+
+#: app/models.py:7
+msgid "Latin (Do, Re, Mi…)"
+msgstr "Latino (Do, Re, Mi…)"
+
+#: app/models.py:12 app/models.py:23
 msgid "name"
 msgstr "nombre"
 
-#: app/models.py:13
+#: app/models.py:18
 msgid "Category"
 msgstr "Categoría"
 
-#: app/models.py:14
+#: app/models.py:19
 msgid "Categories"
 msgstr "Categorías"
 
-#: app/models.py:24
+#: app/models.py:29
 msgid "Tag"
 msgstr "Etiqueta"
 
-#: app/models.py:25
+#: app/models.py:30
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: app/models.py:29 app/models.py:45
+#: app/models.py:34 app/models.py:56
 msgid "title"
 msgstr "título"
 
-#: app/models.py:31
+#: app/models.py:36
 msgid "category"
 msgstr "categoría"
 
-#: app/models.py:33
+#: app/models.py:39
 msgid "lyrics"
 msgstr "letras"
 
 #: app/models.py:40
+msgid "Use ChordPro format: [Am]word [G]word. Chords are optional."
+msgstr "Usa formato ChordPro: [Am]palabra [G]palabra. Los acordes son opcionales."
+
+#: app/models.py:43
+msgid "original key"
+msgstr "tonalidad original"
+
+#: app/models.py:51
 msgid "Song"
 msgstr "Canción"
 
-#: app/models.py:41
+#: app/models.py:52
 msgid "Songs"
 msgstr "Canciones"
 
-#: app/models.py:46
+#: app/models.py:57
 msgid "date"
 msgstr "fecha"
 
-#: app/models.py:52
+#: app/models.py:59
+msgid "chord notation"
+msgstr "notación de acordes"
+
+#: app/models.py:69
 msgid "Set list"
 msgstr "Repertorio"
 
-#: app/models.py:53
+#: app/models.py:70
 msgid "Set lists"
 msgstr "Repertorios"
 
-#: app/models.py:60
+#: app/models.py:77
 msgid "order"
 msgstr "orden"
 
-#: app/models.py:61
+#: app/models.py:78
 msgid "song"
 msgstr "canción"
 
-#: app/models.py:62
+#: app/models.py:79
 msgid "chord"
 msgstr "acorde"
 
-#: app/models.py:63
+#: app/models.py:80
 msgid "font size"
 msgstr "Tamaño de fuente"
 
-#: app/models.py:64
+#: app/models.py:81
 msgid "page break"
 msgstr "Salto de página"
 
-#: app/models.py:68
+#: app/models.py:85
 msgid "Set list song"
 msgstr "Canción por repertorio"
 
-#: app/models.py:69
+#: app/models.py:86
 msgid "Set list songs"
 msgstr "Canciones por repertorio"
 
-#: templates/app/setlist_detail.html:30
+#: templates/app/setlist_detail.html:202
 msgid "Songs:"
 msgstr "Canciones:"
 
-#: templates/app/setlist_detail.html:35
+#: templates/app/setlist_detail.html:208
 msgid "Font size"
 msgstr "Tamaño de fuente"
 
-#: templates/app/setlist_detail.html:37
+#: templates/app/setlist_detail.html:210
 msgid "Page break after this song"
 msgstr "Salto de página después de esta canción"
+
+#: templates/app/setlist_reader.html:632
+msgid "Back to cover"
+msgstr "Volver a la portada"
+
+#: templates/app/setlist_reader.html:643
+msgid "Fit to screen"
+msgstr "Ajustar a pantalla"
+
+#: templates/app/setlist_reader.html:645
+msgid "Fit"
+msgstr "Ajustar"
+
+#: templates/app/setlist_reader.html:649
+msgid "Chords"
+msgstr "Acordes"
+
+#: templates/app/setlist_reader.html:674
+msgid "Start"
+msgstr "Comenzar"
+
+#: templates/app/setlist_reader.html:678
+msgid "No songs in this setlist yet."
+msgstr "Aún no hay canciones en este repertorio."
+
+#: templates/app/setlist_reader.html:724
+msgid "Previous song"
+msgstr "Canción anterior"
+
+#: templates/app/setlist_reader.html:728
+msgid "Cover page"
+msgstr "Portada"
+
+#: templates/app/setlist_reader.html:733
+msgid "Song list"
+msgstr "Lista de canciones"
+
+#: templates/app/setlist_reader.html:742
+msgid "Next song"
+msgstr "Siguiente canción"
