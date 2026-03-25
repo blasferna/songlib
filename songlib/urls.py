@@ -15,6 +15,11 @@ urlpatterns = [
         views.setlist_export_txt,
         name="setlist_export_txt",
     ),
+    path(
+        "setlist/<int:setlist_id>/reader/",
+        views.setlist_reader,
+        name="setlist_reader",
+    ),
     path("api/", include(router.urls)),
     path("", admin.site.urls),
 ]

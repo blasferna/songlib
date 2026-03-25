@@ -25,13 +25,13 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Song)
 class SongAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category',)
+    list_display = ('title', 'category', 'original_key',)
     list_filter = ('category',)
     search_fields = ('title', 'lyrics',)
 
 @admin.register(SetList)
 class SetListAdmin(SortableAdminBase, admin.ModelAdmin):
-    list_display = ('title', 'date', 'print_lint', 'export_as_txt',)
+    list_display = ('title', 'date', 'chord_notation', 'print_lint', 'export_as_txt', 'reader_link',)
 
     def print_lint(self, obj):
         url = reverse('setlist_detail', args=[obj.pk])
@@ -43,6 +43,11 @@ class SetListAdmin(SortableAdminBase, admin.ModelAdmin):
         url = reverse('setlist_export_txt', args=[obj.pk])
         return format_html('<a href="{}">{}</a>', url, _("Export as TXT"))
     export_as_txt.short_description = _('Export as TXT')
+
+    def reader_link(self, obj):
+        url = reverse('setlist_reader', args=[obj.pk])
+        return format_html('<a href="{}" target="_blank">{}</a>', url, _("Reader"))
+    reader_link.short_description = _('Reader')
 
     inlines = [SetListSongInline]
 

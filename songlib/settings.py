@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "adminsortable2",
     "rest_framework",
-    "django_prose_editor",
     "app",
 ]
 

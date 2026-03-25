@@ -1,0 +1,907 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+    <title>{{ setlist.title }} — Reader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --canvas: #080c14;
+            --surface: #0f1520;
+            --surface-raised: #161d2d;
+            --surface-glow: #1c2540;
+            --text-primary: #e8e0d4;
+            --text-secondary: #8a8578;
+            --text-muted: #4a4640;
+            --chord-color: #d4a253;
+            --chord-glow: #d4a25322;
+            --accent: #3a7ca5;
+            --accent-hover: #4a9cc5;
+            --border: #1e2738;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --radius: 12px;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: 'Lora', Georgia, serif;
+            background: var(--canvas);
+            color: var(--text-primary);
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ═══════ HEADER ═══════ */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .header-inner {
+            max-width: 720px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            min-height: 36px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .header-back {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            line-height: 1;
+            transition: var(--transition);
+        }
+
+        .header-back:hover { color: var(--text-secondary); }
+
+        .header-song-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .header-song-key {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--chord-color);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+
+        /* ═══════ TOGGLE BUTTONS ═══════ */
+        .toggle-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.65rem;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+        }
+
+        .toggle-btn:hover {
+            border-color: var(--chord-color);
+            color: var(--chord-color);
+        }
+
+        .toggle-btn.active {
+            background: var(--chord-glow);
+            border-color: var(--chord-color);
+            color: var(--chord-color);
+            box-shadow: 0 0 20px var(--chord-glow);
+        }
+
+        .toggle-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            transition: var(--transition);
+        }
+
+        .toggle-btn.active .toggle-dot {
+            box-shadow: 0 0 6px var(--chord-color);
+        }
+
+        .toggle-fit {
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+
+        .toggle-fit:hover {
+            border-color: var(--accent);
+            color: var(--accent-hover);
+        }
+
+        .toggle-fit.active {
+            background: rgba(58, 124, 165, 0.12);
+            border-color: var(--accent);
+            color: var(--accent-hover);
+            box-shadow: 0 0 20px rgba(58, 124, 165, 0.1);
+        }
+
+        .toggle-fit.active .toggle-dot {
+            box-shadow: 0 0 6px var(--accent);
+        }
+
+        /* ═══════ COVER PAGE ═══════ */
+        .cover {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem 6rem;
+            animation: fadeSlideIn 0.5s ease-out;
+        }
+
+        .cover-card {
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .cover-title {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 2.6rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.15;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.01em;
+        }
+
+        .cover-date {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.08em;
+            margin-bottom: 2.5rem;
+        }
+
+        .cover-divider {
+            width: 40px;
+            height: 2px;
+            background: var(--chord-color);
+            margin: 0 auto 2rem;
+            border-radius: 2px;
+            opacity: 0.5;
+        }
+
+        .cover-songs {
+            list-style: none;
+            text-align: left;
+        }
+
+        .cover-songs li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cover-songs li:last-child { border-bottom: none; }
+
+        .cover-song-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            width: 1.5rem;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .cover-song-title {
+            font-family: 'Lora', Georgia, serif;
+            font-size: 1rem;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .cover-song-key {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--chord-color);
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+
+        .cover-start {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2.5rem;
+            padding: 0.65rem 1.6rem;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            background: var(--surface-raised);
+            color: var(--text-secondary);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none;
+            letter-spacing: 0.06em;
+            transition: var(--transition);
+        }
+
+        .cover-start:hover {
+            border-color: var(--accent);
+            color: var(--accent-hover);
+            background: var(--surface-glow);
+        }
+
+        .cover-start svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ═══════ LYRICS AREA ═══════ */
+        .lyrics-container {
+            flex: 1;
+            max-width: 720px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1rem 1rem 6rem;
+            animation: fadeSlideIn 0.45s ease-out;
+        }
+
+        .lyrics-plain {
+            font-size: 1.15rem;
+            line-height: 1.75;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .lyrics-chords { display: none; }
+        .lyrics-chords.visible { display: block; }
+        .lyrics-plain.hidden { display: none; }
+
+        .chord-line-wrapper { margin-bottom: 0.3rem; }
+
+        .chord-line-content {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .chord-pair {
+            display: inline-flex;
+            flex-direction: column;
+        }
+
+        .chord-annotation {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--chord-color);
+            display: block;
+            line-height: 1.4;
+            min-height: 1.2em;
+            letter-spacing: 0.02em;
+        }
+
+        .chord-text {
+            font-family: 'Lora', Georgia, serif;
+            font-size: 1.15rem;
+            line-height: 1.55;
+            color: var(--text-primary);
+        }
+
+        /* ═══════ FIT-TO-SCREEN ═══════ */
+        body.fit-mode .lyrics-container {
+            display: flex;
+            align-items: flex-start;
+            padding-bottom: 3.5rem;
+        }
+
+        body.fit-mode .lyrics-plain,
+        body.fit-mode .lyrics-chords {
+            transform-origin: top left;
+        }
+
+        /* ═══════ EMPTY STATE ═══════ */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+        }
+
+        .empty-state p {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ═══════ BOTTOM NAV ═══════ */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .bottom-nav-inner {
+            max-width: 720px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.55rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .nav-btn:hover:not(.disabled) {
+            border-color: var(--accent);
+            color: var(--accent-hover);
+            background: var(--surface-raised);
+        }
+
+        .nav-btn:active:not(.disabled) { transform: scale(0.96); }
+
+        .nav-btn.disabled {
+            opacity: 0.25;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .nav-counter {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+            text-align: center;
+            min-width: 3.5rem;
+        }
+
+        .nav-counter-current {
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .nav-counter-sep {
+            color: var(--text-muted);
+            margin: 0 0.15rem;
+        }
+
+        .song-list-toggle {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: var(--transition);
+        }
+
+        .song-list-toggle:hover { color: var(--text-secondary); }
+
+        .song-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            background: var(--surface-raised);
+            border-top: 1px solid var(--border);
+            border-radius: 16px 16px 0 0;
+            max-height: 60vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+
+        .song-drawer.open { transform: translateY(0); }
+
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 199;
+            background: rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .drawer-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .drawer-handle {
+            display: flex;
+            justify-content: center;
+            padding: 0.75rem;
+            cursor: pointer;
+        }
+
+        .drawer-handle span {
+            width: 32px;
+            height: 4px;
+            border-radius: 4px;
+            background: var(--text-muted);
+        }
+
+        .drawer-list {
+            list-style: none;
+            padding: 0 0.5rem;
+        }
+
+        .drawer-list li { border-bottom: 1px solid var(--border); }
+        .drawer-list li:last-child { border-bottom: none; }
+
+        .drawer-list a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 0.75rem;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            border-radius: 8px;
+        }
+
+        .drawer-list a:hover {
+            background: var(--surface-glow);
+            color: var(--text-primary);
+        }
+
+        .drawer-list a.active {
+            color: var(--chord-color);
+            background: var(--chord-glow);
+        }
+
+        .drawer-song-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+            width: 1.8rem;
+            text-align: right;
+            flex-shrink: 0;
+            opacity: 0.6;
+        }
+
+        .drawer-song-title {
+            font-family: 'Lora', Georgia, serif;
+            font-size: 0.95rem;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .drawer-song-chord {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--chord-color);
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+
+        .arrow {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+        }
+
+        .arrow svg {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (min-width: 640px) {
+            .cover-title { font-size: 3.2rem; }
+            .lyrics-plain, .chord-text { font-size: 1.25rem; }
+            .header-song-title { font-size: 1.15rem; }
+        }
+
+        @media (min-width: 1024px) {
+            .lyrics-container { padding-left: 2rem; padding-right: 2rem; }
+        }
+
+        @media print {
+            .header, .bottom-nav, .song-drawer, .drawer-overlay { display: none !important; }
+            body { background: white; color: #1a1a1a; }
+            .lyrics-container { padding-bottom: 1rem; }
+            .chord-annotation { color: #555; }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-left">
+                {% if not is_cover and current_song %}
+                <a class="header-back" href="?" aria-label="{% trans 'Back to cover' %}">‹</a>
+                <span class="header-song-title">{{ current_song.song.title }}</span>
+                {% if current_song.chord %}
+                <span class="header-song-key">{{ current_song.chord }}</span>
+                {% endif %}
+                {% else %}
+                <span class="header-song-title">{{ setlist.title }}</span>
+                {% endif %}
+            </div>
+            {% if not is_cover and current_song %}
+            <div class="header-right">
+                <button class="toggle-btn toggle-fit" id="fitToggle" onclick="toggleFit()" aria-pressed="false" title="{% trans 'Fit to screen' %}">
+                    <span class="toggle-dot"></span>
+                    {% trans "Fit" %}
+                </button>
+                <button class="toggle-btn" id="chordToggle" onclick="toggleChords()" aria-pressed="false">
+                    <span class="toggle-dot"></span>
+                    {% trans "Chords" %}
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if is_cover %}
+    <!-- COVER PAGE -->
+    <div class="cover">
+        <div class="cover-card">
+            <h1 class="cover-title">{{ setlist.title }}</h1>
+            <div class="cover-date">{{ setlist.date }}</div>
+            <div class="cover-divider"></div>
+            {% if song_list %}
+            <ol class="cover-songs">
+                {% for s in song_list %}
+                <li>
+                    <span class="cover-song-num">{{ s.index|add:1 }}</span>
+                    <span class="cover-song-title">{{ s.title }}</span>
+                    {% if s.chord %}<span class="cover-song-key">{{ s.chord }}</span>{% endif %}
+                </li>
+                {% endfor %}
+            </ol>
+            <a class="cover-start" href="?song=0">
+                {% trans "Start" %}
+                <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+            </a>
+            {% else %}
+            <p style="color:var(--text-muted);font-style:italic;font-family:'Cormorant Garamond',Georgia,serif;font-size:1.2rem;">{% trans "No songs in this setlist yet." %}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% elif current_song %}
+    <!-- LYRICS -->
+    <main class="lyrics-container" id="lyricsContainer">
+        <div class="lyrics-plain" id="lyricsPlain">{{ plain_lyrics }}</div>
+        <div class="lyrics-chords" id="lyricsChords">
+            {% for line in processed_lines %}
+            <div class="chord-line-wrapper">
+                <div class="chord-line-content">
+                    {% for segment in line %}
+                    <span class="chord-pair">
+                        <span class="chord-annotation">{% if segment.chord %}{{ segment.chord }}{% endif %}</span>
+                        <span class="chord-text">{{ segment.text }}</span>
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- SONG LIST DRAWER -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+    <div class="song-drawer" id="songDrawer">
+        <div class="drawer-handle" onclick="closeDrawer()"><span></span></div>
+        <ul class="drawer-list">
+            {% for s in song_list %}
+            <li>
+                <a href="?song={{ s.index }}"{% if s.index == song_index %} class="active"{% endif %}>
+                    <span class="drawer-song-num">{{ s.index|add:1 }}</span>
+                    <span class="drawer-song-title">{{ s.title }}</span>
+                    {% if s.chord %}<span class="drawer-song-chord">{{ s.chord }}</span>{% endif %}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="bottom-nav-inner">
+            {% if has_prev %}
+            <a class="nav-btn" href="?song={{ prev_index }}" aria-label="{% trans 'Previous song' %}">
+                <span class="arrow"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></span>
+            </a>
+            {% else %}
+            <a class="nav-btn" href="?" aria-label="{% trans 'Cover page' %}">
+                <span class="arrow"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></span>
+            </a>
+            {% endif %}
+
+            <button class="song-list-toggle" onclick="openDrawer()" aria-label="{% trans 'Song list' %}">
+                <span class="nav-counter">
+                    <span class="nav-counter-current">{{ song_index|add:1 }}</span>
+                    <span class="nav-counter-sep">/</span>
+                    {{ total }}
+                </span>
+            </button>
+
+            {% if has_next %}
+            <a class="nav-btn" href="?song={{ next_index }}" aria-label="{% trans 'Next song' %}">
+                <span class="arrow"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>
+            </a>
+            {% else %}
+            <span class="nav-btn disabled" aria-hidden="true">
+                <span class="arrow"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>
+            </span>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    <script>
+        /* ═══════ Chord toggle ═══════ */
+        function toggleChords() {
+            var btn = document.getElementById('chordToggle');
+            if (!btn) return;
+            var plain = document.getElementById('lyricsPlain');
+            var chords = document.getElementById('lyricsChords');
+            var isActive = btn.classList.toggle('active');
+
+            btn.setAttribute('aria-pressed', isActive);
+            plain.classList.toggle('hidden', isActive);
+            chords.classList.toggle('visible', isActive);
+            sessionStorage.setItem('showChords', isActive ? '1' : '0');
+            if (document.body.classList.contains('fit-mode')) applyFit();
+        }
+
+        if (sessionStorage.getItem('showChords') === '1') {
+            toggleChords();
+        }
+
+        /* ═══════ Fit-to-screen ═══════ */
+        function getVisibleLyrics() {
+            var plain = document.getElementById('lyricsPlain');
+            var chords = document.getElementById('lyricsChords');
+            if (!plain || !chords) return null;
+            return chords.classList.contains('visible') ? chords : plain;
+        }
+
+        function applyFit() {
+            var el = getVisibleLyrics();
+            if (!el) return;
+
+            // Reset any previous scaling
+            el.style.transform = '';
+            el.style.width = '';
+            var container = document.getElementById('lyricsContainer');
+            if (!container) return;
+            container.style.height = '';
+            container.style.overflow = '';
+
+            var header = document.querySelector('.header');
+            var nav = document.getElementById('bottomNav');
+            var headerH = header ? header.offsetHeight : 0;
+            var navH = nav ? nav.offsetHeight : 0;
+            var pad = 16;
+            var availH = window.innerHeight - headerH - navH - pad;
+            var availW = container.clientWidth;
+
+            var contentH = el.scrollHeight;
+            var contentW = el.scrollWidth;
+
+            if (contentH <= 0) return;
+
+            var scaleY = availH / contentH;
+            var scaleX = availW / contentW;
+            var scale = Math.min(scaleY, scaleX, 2);
+
+            if (scale < 1 || scaleY < 1) {
+                el.style.transform = 'scale(' + scale + ')';
+                el.style.width = (100 / scale) + '%';
+                container.style.height = (contentH * scale) + 'px';
+                container.style.overflow = 'hidden';
+            }
+        }
+
+        function clearFit() {
+            ['lyricsPlain', 'lyricsChords'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) { el.style.transform = ''; el.style.width = ''; }
+            });
+            var c = document.getElementById('lyricsContainer');
+            if (c) { c.style.height = ''; c.style.overflow = ''; }
+        }
+
+        function toggleFit() {
+            var btn = document.getElementById('fitToggle');
+            if (!btn) return;
+            var isActive = btn.classList.toggle('active');
+            btn.setAttribute('aria-pressed', isActive);
+            document.body.classList.toggle('fit-mode', isActive);
+            sessionStorage.setItem('fitMode', isActive ? '1' : '0');
+
+            if (isActive) {
+                applyFit();
+            } else {
+                clearFit();
+            }
+        }
+
+        if (sessionStorage.getItem('fitMode') === '1') {
+            toggleFit();
+        }
+
+        window.addEventListener('resize', function() {
+            if (document.body.classList.contains('fit-mode')) applyFit();
+        });
+
+        /* ═══════ Song list drawer ═══════ */
+        function openDrawer() {
+            var d = document.getElementById('songDrawer');
+            var o = document.getElementById('drawerOverlay');
+            if (d) d.classList.add('open');
+            if (o) o.classList.add('visible');
+            var active = document.querySelector('.drawer-list a.active');
+            if (active) setTimeout(function() { active.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 100);
+        }
+
+        function closeDrawer() {
+            var d = document.getElementById('songDrawer');
+            var o = document.getElementById('drawerOverlay');
+            if (d) d.classList.remove('open');
+            if (o) o.classList.remove('visible');
+        }
+
+        /* ═══════ Keyboard navigation ═══════ */
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                var prev = document.querySelector('.nav-btn[href*="song={{ prev_index }}"]');
+                if (!prev) prev = document.querySelector('.nav-btn[href="?"]');
+                if (prev) { e.preventDefault(); prev.click(); }
+            }
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                var next = document.querySelector('.nav-btn[href*="song={{ next_index }}"]');
+                if (next) { e.preventDefault(); next.click(); }
+            }
+            if (e.key === 'c' || e.key === 'C') toggleChords();
+            if (e.key === 'f' || e.key === 'F') toggleFit();
+            if (e.key === 'Escape') closeDrawer();
+        });
+
+        /* ═══════ Touch swipe ═══════ */
+        var touchStartX = 0, touchStartY = 0;
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', function(e) {
+            var dx = e.changedTouches[0].screenX - touchStartX;
+            var dy = e.changedTouches[0].screenY - touchStartY;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                if (dx > 0) {
+                    var prev = document.querySelector('.nav-btn[href*="song={{ prev_index }}"]');
+                    if (!prev) prev = document.querySelector('.nav-btn[href="?"]');
+                    if (prev) prev.click();
+                } else {
+                    var next = document.querySelector('.nav-btn[href*="song={{ next_index }}"]');
+                    if (next) next.click();
+                }
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html>

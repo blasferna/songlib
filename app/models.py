@@ -1,7 +1,11 @@
-from django_prose_editor.fields import ProseEditorField
-from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+
+NOTATION_CHOICES = [
+    ("english", _("English (C, D, E…)")),
+    ("latin", _("Latin (Do, Re, Mi…)")),
+]
 
 
 class Category(models.Model):
@@ -31,33 +35,12 @@ class Song(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, verbose_name=_("category")
     )
-    lyrics = ProseEditorField(
-        extensions={
-            # Core text formatting
-            "Bold": True,
-            "Italic": True,
-            "Strike": True,
-            "Underline": True,
-            "HardBreak": True,
-            # Structure
-            "Heading": {
-                "levels": [1, 2, 3]  # Only allow h1, h2, h3
-            },
-            "BulletList": True,
-            "OrderedList": True,
-            "Blockquote": True,
-            # Advanced extensions
-            "Link": {
-                "enableTarget": True,  # Enable "open in new window"
-                "protocols": ["http", "https", "mailto"],  # Limit protocols
-            },
-            "Table": True,
-            # Editor capabilities
-            "History": True,  # Enables undo/redo
-            "HTML": True,  # Allows HTML view
-            "Typographic": True,  # Enables typographic chars
-        },
-        sanitize=True,
+    lyrics = models.TextField(
+        _("lyrics"),
+        help_text=_("Use ChordPro format: [Am]word [G]word. Chords are optional."),
+    )
+    original_key = models.CharField(
+        _("original key"), max_length=10, blank=True, default=""
     )
     tags = models.ManyToManyField(Tag, blank=True)
 
@@ -72,6 +55,12 @@ class Song(models.Model):
 class SetList(models.Model):
     title = models.CharField(_("title"), max_length=200)
     date = models.DateField(_("date"))
+    chord_notation = models.CharField(
+        _("chord notation"),
+        max_length=10,
+        choices=NOTATION_CHOICES,
+        default="english",
+    )
 
     def __str__(self):
         return self.title

@@ -203,14 +203,14 @@
     
     <div class="content">
     {% for song in songs %}
-    <h3 class="uppercase" {% if not forloop.first %}style="margin-top: 50px;"{% endif %}>{{ song.order }}. {{ song.song.title }} - ({{ song.chord }})</h3>
+    <h3 class="uppercase" {% if not forloop.first %}style="margin-top: 50px;"{% endif %}>{{ song.obj.order }}. {{ song.obj.song.title }} - ({{ song.obj.chord }})</h3>
         <form class="formatting-form">
-            <label for="font-size-{{ song.id }}">{% trans "Font size" %}:</label>
-            <input id="font-size-{{ song.id }}" type="number" min="1" value="{{ song.font_size }}" onchange="updateFormatting({{ song.id }})">
-            <label for="page-break-{{ song.id }}">{% trans "Page break after this song" %}:</label>
-            <input id="page-break-{{ song.id }}" type="checkbox" {% if song.page_break_after %}checked{% endif %} onchange="updateFormatting({{ song.id }})">
+            <label for="font-size-{{ song.obj.id }}">{% trans "Font size" %}:</label>
+            <input id="font-size-{{ song.obj.id }}" type="number" min="1" value="{{ song.obj.font_size }}" onchange="updateFormatting({{ song.obj.id }})">
+            <label for="page-break-{{ song.obj.id }}">{% trans "Page break after this song" %}:</label>
+            <input id="page-break-{{ song.obj.id }}" type="checkbox" {% if song.obj.page_break_after %}checked{% endif %} onchange="updateFormatting({{ song.obj.id }})">
         </form>
-        <div id="song-{{ song.id }}" class="song" style="font-size: {{ song.font_size }}px; {% if song.page_break_after %}page-break-after: always;{% endif %}">{{ song.song.lyrics|safe }}</div>
+        <pre id="song-{{ song.obj.id }}" class="song" style="white-space: pre-wrap; font-family: inherit; font-size: {{ song.obj.font_size }}px; {% if song.obj.page_break_after %}page-break-after: always;{% endif %}">{{ song.plain_lyrics }}</pre>
     {% endfor %} 
     </div>
 
