@@ -84,6 +84,21 @@
             color: var(--sidebar-accent-bar);
         }
 
+        .org-name {
+            font-size: 0.78rem;
+            color: var(--sidebar-text);
+            margin-top: 6px;
+            opacity: 0.7;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .org-switch-link {
+            font-size: 0.85rem !important;
+            opacity: 0.8;
+        }
+
         .sidebar-nav {
             flex: 1;
             padding: 16px 12px;
@@ -686,6 +701,9 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <h1>Song<span>Lib</span></h1>
+            {% if active_organization %}
+            <div class="org-name">{{ active_organization.name }}</div>
+            {% endif %}
         </div>
 
         <nav class="sidebar-nav">
@@ -708,6 +726,24 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 {% trans "Set Lists" %}
             </a>
+
+            <div class="nav-section-label">{% trans "Manage" %}</div>
+            <a href="{% url 'organization_list' %}" class="{% if nav_active == 'organizations' %}active{% endif %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                {% trans "Organizations" %}
+            </a>
+
+            {% if user_organizations|length > 1 %}
+            <div class="nav-section-label">{% trans "Switch Organization" %}</div>
+            {% for org in user_organizations %}
+            {% if not active_organization or org.pk != active_organization.pk %}
+            <a href="{% url 'organization_switch' pk=org.pk %}" class="org-switch-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12H3M21 12l-4-4m4 4l-4 4"/></svg>
+                {{ org.name }}
+            </a>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
         </nav>
 
         <div class="sidebar-footer">

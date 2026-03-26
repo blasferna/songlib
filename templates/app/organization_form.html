@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}
+{% if organization %}{% trans "Edit Organization" %}{% else %}{% trans "New Organization" %}{% endif %} — SongLib
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% if organization %}{% trans "Edit Organization" %}{% else %}{% trans "New Organization" %}{% endif %}</h2>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <div class="form-help">{{ field.help_text }}</div>
+                {% endif %}
+                {{ field.errors }}
+            </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if organization %}{% trans "Save Changes" %}{% else %}{% trans "Create Organization" %}{% endif %}
+                </button>
+                <a href="{% url 'organization_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

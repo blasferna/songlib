@@ -14,13 +14,15 @@ from rest_framework import viewsets
 from .chords import process_chordpro, strip_chords
 from .forms import (
     CategoryForm,
+    MemberAddForm,
+    OrganizationForm,
     RegisterForm,
     SetListForm,
     SetListSongForm,
     SongForm,
     TagForm,
 )
-from .models import Category, SetList, SetListSong, Song, Tag
+from .models import Category, Membership, Organization, SetList, SetListSong, Song, Tag, UserProfile
 from .serializers import SetListSongSerializer
 
 SUPPORTED_PAGE_SIZES = ["A4", "letter", "legal"]
@@ -44,6 +46,15 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
+            # Create a default personal organization
+            org = Organization.objects.create(
+                name=_("%(username)s's Organization") % {"username": user.username},
+                created_by=user,
+            )
+            Membership.objects.create(user=user, organization=org, role="admin")
+            profile, _created = UserProfile.objects.get_or_create(user=user)
+            profile.active_organization = org
+            profile.save()
             login(request, user)
             messages.success(request, _("Welcome! Your account has been created."))
             return redirect("song_list")
@@ -57,7 +68,8 @@ def register_view(request):
 
 @login_required
 def song_list(request):
-    qs = Song.objects.select_related("category").prefetch_related("tags").all()
+    org = request.active_organization
+    qs = Song.objects.filter(organization=org).select_related("category").prefetch_related("tags")
     q = request.GET.get("q", "").strip()
     category_id = request.GET.get("category", "")
     if q:
@@ -75,7 +87,7 @@ def song_list(request):
     qs = qs.order_by("title")
     paginator = Paginator(qs, 25)
     page = paginator.get_page(request.GET.get("page"))
-    categories = Category.objects.order_by("name")
+    categories = Category.objects.filter(organization=org).order_by("name")
     return render(
         request,
         "app/song_list.html",
@@ -91,14 +103,21 @@ def song_list(request):
 
 @login_required
 def song_create(request):
+    org = request.active_organization
     if request.method == "POST":
         form = SongForm(request.POST)
+        form.instance.organization = org
         if form.is_valid():
-            form.save()
+            song = form.save(commit=False)
+            song.organization = org
+            song.save()
+            form.save_m2m()
             messages.success(request, _("Song created."))
             return redirect("song_list")
     else:
         form = SongForm()
+    form.fields["category"].queryset = Category.objects.filter(organization=org)
+    form.fields["tags"].queryset = Tag.objects.filter(organization=org)
     selected_tags = Tag.objects.filter(pk__in=request.POST.getlist("tags")) if request.method == "POST" else Tag.objects.none()
     return render(
         request, "app/song_form.html", {"form": form, "selected_tags": selected_tags, "nav_active": "songs"}
@@ -107,7 +126,8 @@ def song_create(request):
 
 @login_required
 def song_edit(request, pk):
-    song = get_object_or_404(Song, pk=pk)
+    org = request.active_organization
+    song = get_object_or_404(Song, pk=pk, organization=org)
     if request.method == "POST":
         form = SongForm(request.POST, instance=song)
         if form.is_valid():
@@ -116,6 +136,8 @@ def song_edit(request, pk):
             return redirect("song_list")
     else:
         form = SongForm(instance=song)
+    form.fields["category"].queryset = Category.objects.filter(organization=org)
+    form.fields["tags"].queryset = Tag.objects.filter(organization=org)
     selected_tags = Tag.objects.filter(pk__in=request.POST.getlist("tags")) if request.method == "POST" else song.tags.all()
     return render(
         request,
@@ -126,7 +148,7 @@ def song_edit(request, pk):
 
 @login_required
 def song_delete(request, pk):
-    song = get_object_or_404(Song, pk=pk)
+    song = get_object_or_404(Song, pk=pk, organization=request.active_organization)
     if request.method == "POST":
         song.delete()
         messages.success(request, _("Song deleted."))
@@ -148,12 +170,15 @@ def song_delete(request, pk):
 
 @login_required
 def category_list(request):
-    categories = Category.objects.annotate(song_count=Count("song")).order_by("name")
+    org = request.active_organization
+    categories = Category.objects.filter(organization=org).annotate(song_count=Count("song")).order_by("name")
     form = CategoryForm()
     if request.method == "POST":
         form = CategoryForm(request.POST)
         if form.is_valid():
-            form.save()
+            cat = form.save(commit=False)
+            cat.organization = org
+            cat.save()
             messages.success(request, _("Category created."))
             return redirect("category_list")
     return render(
@@ -165,7 +190,7 @@ def category_list(request):
 
 @login_required
 def category_edit(request, pk):
-    category = get_object_or_404(Category, pk=pk)
+    category = get_object_or_404(Category, pk=pk, organization=request.active_organization)
     if request.method == "POST":
         form = CategoryForm(request.POST, instance=category)
         if form.is_valid():
@@ -183,7 +208,7 @@ def category_edit(request, pk):
 
 @login_required
 def category_delete(request, pk):
-    category = get_object_or_404(Category, pk=pk)
+    category = get_object_or_404(Category, pk=pk, organization=request.active_organization)
     song_count = category.song_set.count()
     if request.method == "POST":
         category.delete()
@@ -212,12 +237,15 @@ def category_delete(request, pk):
 
 @login_required
 def tag_list(request):
-    tags = Tag.objects.annotate(song_count=Count("song")).order_by("name")
+    org = request.active_organization
+    tags = Tag.objects.filter(organization=org).annotate(song_count=Count("song")).order_by("name")
     form = TagForm()
     if request.method == "POST":
         form = TagForm(request.POST)
         if form.is_valid():
-            form.save()
+            tag = form.save(commit=False)
+            tag.organization = org
+            tag.save()
             messages.success(request, _("Tag created."))
             return redirect("tag_list")
     return render(
@@ -229,7 +257,7 @@ def tag_list(request):
 
 @login_required
 def tag_edit(request, pk):
-    tag = get_object_or_404(Tag, pk=pk)
+    tag = get_object_or_404(Tag, pk=pk, organization=request.active_organization)
     if request.method == "POST":
         form = TagForm(request.POST, instance=tag)
         if form.is_valid():
@@ -247,7 +275,7 @@ def tag_edit(request, pk):
 
 @login_required
 def tag_delete(request, pk):
-    tag = get_object_or_404(Tag, pk=pk)
+    tag = get_object_or_404(Tag, pk=pk, organization=request.active_organization)
     if request.method == "POST":
         tag.delete()
         messages.success(request, _("Tag deleted."))
@@ -269,8 +297,9 @@ def tag_delete(request, pk):
 
 @login_required
 def setlist_list(request):
+    org = request.active_organization
     setlists = (
-        SetList.objects.annotate(song_count=Count("songs"))
+        SetList.objects.filter(organization=org).annotate(song_count=Count("songs"))
         .order_by("-date")
     )
     q = request.GET.get("q", "").strip()
@@ -289,10 +318,13 @@ def setlist_list(request):
 
 @login_required
 def setlist_create(request):
+    org = request.active_organization
     if request.method == "POST":
         form = SetListForm(request.POST)
         if form.is_valid():
-            sl = form.save()
+            sl = form.save(commit=False)
+            sl.organization = org
+            sl.save()
             messages.success(request, _("Set list created."))
             return redirect("setlist_edit", pk=sl.pk)
     else:
@@ -306,7 +338,8 @@ def setlist_create(request):
 
 @login_required
 def setlist_edit(request, pk):
-    setlist = get_object_or_404(SetList, pk=pk)
+    org = request.active_organization
+    setlist = get_object_or_404(SetList, pk=pk, organization=org)
     if request.method == "POST":
         form = SetListForm(request.POST, instance=setlist)
         if form.is_valid():
@@ -316,7 +349,7 @@ def setlist_edit(request, pk):
     else:
         form = SetListForm(instance=setlist)
     setlist_songs = setlist.songs.select_related("song").order_by("order")
-    all_songs = Song.objects.select_related("category").order_by("title")
+    all_songs = Song.objects.filter(organization=org).select_related("category").order_by("title")
     return render(
         request,
         "app/setlist_form.html",
@@ -332,7 +365,7 @@ def setlist_edit(request, pk):
 
 @login_required
 def setlist_delete(request, pk):
-    setlist = get_object_or_404(SetList, pk=pk)
+    setlist = get_object_or_404(SetList, pk=pk, organization=request.active_organization)
     if request.method == "POST":
         setlist.delete()
         messages.success(request, _("Set list deleted."))
@@ -352,7 +385,7 @@ def setlist_delete(request, pk):
 @login_required
 @require_POST
 def setlist_add_song(request, pk):
-    setlist = get_object_or_404(SetList, pk=pk)
+    setlist = get_object_or_404(SetList, pk=pk, organization=request.active_organization)
     song_id = request.POST.get("song_id")
     chord = request.POST.get("chord", "")
     if not song_id:
@@ -380,7 +413,7 @@ def setlist_add_song(request, pk):
 @login_required
 @require_POST
 def setlist_remove_song(request, pk, song_pk):
-    setlist = get_object_or_404(SetList, pk=pk)
+    setlist = get_object_or_404(SetList, pk=pk, organization=request.active_organization)
     sls = get_object_or_404(SetListSong, pk=song_pk, setlist=setlist)
     sls.delete()
     # Re-order remaining
@@ -394,7 +427,7 @@ def setlist_remove_song(request, pk, song_pk):
 @login_required
 @require_POST
 def setlist_reorder(request, pk):
-    setlist = get_object_or_404(SetList, pk=pk)
+    setlist = get_object_or_404(SetList, pk=pk, organization=request.active_organization)
     try:
         order = json.loads(request.body).get("order", [])
     except (json.JSONDecodeError, AttributeError):
@@ -407,8 +440,9 @@ def setlist_reorder(request, pk):
 @login_required
 def song_search_api(request):
     """JSON endpoint for song autocomplete."""
+    org = request.active_organization
     q = request.GET.get("q", "").strip()
-    songs = Song.objects.select_related("category").order_by("title")
+    songs = Song.objects.filter(organization=org).select_related("category").order_by("title")
     if q:
         q_norm = _normalize_accent(q)
         matching_pks = [
@@ -431,8 +465,9 @@ def song_search_api(request):
 @login_required
 def tag_search_api(request):
     """JSON endpoint for tag autocomplete."""
+    org = request.active_organization
     q = request.GET.get("q", "").strip()
-    tags = Tag.objects.order_by("name")
+    tags = Tag.objects.filter(organization=org).order_by("name")
     if q:
         q_norm = _normalize_accent(q)
         matching_pks = [
@@ -440,6 +475,31 @@ def tag_search_api(request):
         ]
         tags = tags.filter(pk__in=matching_pks)
     results = [{"id": t.pk, "name": t.name} for t in tags[:30]]
+    return JsonResponse({"results": results})
+
+
+@login_required
+def user_search_api(request):
+    """JSON endpoint for user autocomplete (member add)."""
+    from django.contrib.auth.models import User
+
+    q = request.GET.get("q", "").strip()
+    org_pk = request.GET.get("org")
+    users = User.objects.filter(is_active=True).order_by("username")
+    if q:
+        q_norm = _normalize_accent(q)
+        matching_pks = [
+            u.pk for u in users if q_norm in _normalize_accent(u.username) or (u.email and q_norm in _normalize_accent(u.email))
+        ]
+        users = users.filter(pk__in=matching_pks)
+    # Exclude users already in this organization
+    if org_pk:
+        existing = Membership.objects.filter(organization_id=org_pk).values_list("user_id", flat=True)
+        users = users.exclude(pk__in=existing)
+    results = [
+        {"id": u.pk, "username": u.username, "email": u.email or ""}
+        for u in users[:30]
+    ]
     return JsonResponse({"results": results})
 
 
@@ -592,3 +652,223 @@ def setlist_reader(request, setlist_id):
 class SetListSongViewSet(viewsets.ModelViewSet):
     queryset = SetListSong.objects.all()
     serializer_class = SetListSongSerializer
+
+
+# ─── Organizations ──────────────────────────────────────────────────────────────
+
+
+@login_required
+def organization_list(request):
+    memberships = Membership.objects.filter(user=request.user).select_related(
+        "organization"
+    )
+    return render(
+        request,
+        "app/organization_list.html",
+        {"memberships": memberships, "nav_active": "organizations"},
+    )
+
+
+@login_required
+def organization_create(request):
+    if request.method == "POST":
+        form = OrganizationForm(request.POST)
+        if form.is_valid():
+            org = form.save(commit=False)
+            org.created_by = request.user
+            org.save()
+            Membership.objects.create(
+                user=request.user, organization=org, role="admin"
+            )
+            # Set as active organization
+            profile, _created = UserProfile.objects.get_or_create(user=request.user)
+            profile.active_organization = org
+            profile.save()
+            messages.success(request, _("Organization created."))
+            return redirect("song_list")
+    else:
+        form = OrganizationForm()
+    return render(
+        request,
+        "app/organization_form.html",
+        {"form": form, "nav_active": "organizations"},
+    )
+
+
+@login_required
+def organization_edit(request, pk):
+    org = get_object_or_404(Organization, pk=pk)
+    membership = get_object_or_404(
+        Membership, user=request.user, organization=org, role="admin"
+    )
+    if request.method == "POST":
+        form = OrganizationForm(request.POST, instance=org)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Organization updated."))
+            return redirect("organization_list")
+    else:
+        form = OrganizationForm(instance=org)
+    return render(
+        request,
+        "app/organization_form.html",
+        {"form": form, "organization": org, "nav_active": "organizations"},
+    )
+
+
+@login_required
+def organization_delete(request, pk):
+    org = get_object_or_404(Organization, pk=pk)
+    membership = get_object_or_404(
+        Membership, user=request.user, organization=org, role="admin"
+    )
+    song_count = Song.objects.filter(organization=org).count()
+    setlist_count = SetList.objects.filter(organization=org).count()
+    if request.method == "POST":
+        # If this was the active org, clear it
+        profile = request.user.profile
+        if profile.active_organization == org:
+            # Switch to another org if available
+            other = (
+                Membership.objects.filter(user=request.user)
+                .exclude(organization=org)
+                .select_related("organization")
+                .first()
+            )
+            profile.active_organization = other.organization if other else None
+            profile.save()
+        org.delete()
+        messages.success(request, _("Organization deleted."))
+        return redirect("organization_list")
+    return render(
+        request,
+        "app/confirm_delete.html",
+        {
+            "object": org,
+            "object_name": org.name,
+            "cancel_url": "organization_list",
+            "warning": _("This will delete %(songs)d song(s) and %(setlists)d set list(s).")
+            % {"songs": song_count, "setlists": setlist_count}
+            if song_count or setlist_count
+            else None,
+            "nav_active": "organizations",
+        },
+    )
+
+
+@login_required
+def organization_switch(request, pk):
+    org = get_object_or_404(Organization, pk=pk)
+    get_object_or_404(Membership, user=request.user, organization=org)
+    profile, _created = UserProfile.objects.get_or_create(user=request.user)
+    profile.active_organization = org
+    profile.save()
+    messages.success(
+        request, _("Switched to %(org)s.") % {"org": org.name}
+    )
+    return redirect("song_list")
+
+
+@login_required
+def organization_members(request, pk):
+    org = get_object_or_404(Organization, pk=pk)
+    user_membership = get_object_or_404(
+        Membership, user=request.user, organization=org, role="admin"
+    )
+    memberships = Membership.objects.filter(organization=org).select_related("user")
+    form = MemberAddForm()
+    return render(
+        request,
+        "app/organization_members.html",
+        {
+            "organization": org,
+            "memberships": memberships,
+            "form": form,
+            "nav_active": "organizations",
+        },
+    )
+
+
+@login_required
+@require_POST
+def organization_add_member(request, pk):
+    org = get_object_or_404(Organization, pk=pk)
+    get_object_or_404(
+        Membership, user=request.user, organization=org, role="admin"
+    )
+    form = MemberAddForm(request.POST)
+    if form.is_valid():
+        from django.contrib.auth.models import User
+
+        username = form.cleaned_data["username"]
+        role = form.cleaned_data["role"]
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, _("User '%(username)s' not found.") % {"username": username})
+            return redirect("organization_members", pk=pk)
+        membership, created = Membership.objects.get_or_create(
+            user=user,
+            organization=org,
+            defaults={"role": role},
+        )
+        if created:
+            messages.success(
+                request,
+                _("%(username)s added to the organization.") % {"username": username},
+            )
+        else:
+            messages.warning(
+                request,
+                _("%(username)s is already a member.") % {"username": username},
+            )
+    return redirect("organization_members", pk=pk)
+
+
+@login_required
+@require_POST
+def organization_remove_member(request, pk, user_id):
+    org = get_object_or_404(Organization, pk=pk)
+    get_object_or_404(
+        Membership, user=request.user, organization=org, role="admin"
+    )
+    membership = get_object_or_404(Membership, organization=org, user_id=user_id)
+    if membership.user == request.user:
+        # Cannot remove yourself if you're the only admin
+        admin_count = Membership.objects.filter(
+            organization=org, role="admin"
+        ).count()
+        if admin_count <= 1:
+            messages.error(request, _("Cannot remove the only admin."))
+            return redirect("organization_members", pk=pk)
+    membership.delete()
+    messages.success(request, _("Member removed."))
+    return redirect("organization_members", pk=pk)
+
+
+@login_required
+@require_POST
+def organization_change_role(request, pk, user_id):
+    org = get_object_or_404(Organization, pk=pk)
+    get_object_or_404(
+        Membership, user=request.user, organization=org, role="admin"
+    )
+    membership = get_object_or_404(Membership, organization=org, user_id=user_id)
+    if membership.role == "admin":
+        # Prevent removing last admin
+        admin_count = Membership.objects.filter(
+            organization=org, role="admin"
+        ).count()
+        if admin_count <= 1:
+            messages.error(request, _("Cannot demote the only admin."))
+            return redirect("organization_members", pk=pk)
+        membership.role = "member"
+    else:
+        membership.role = "admin"
+    membership.save()
+    messages.success(
+        request,
+        _("%(username)s is now %(role)s.")
+        % {"username": membership.user.username, "role": membership.get_role_display()},
+    )
+    return redirect("organization_members", pk=pk)

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Organizations" %} — SongLib{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% trans "Organizations" %}</h2>
+    <a href="{% url 'organization_create' %}" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        {% trans "New Organization" %}
+    </a>
+</div>
+
+{% if memberships %}
+<div style="display: flex; flex-wrap: wrap; gap: 16px;">
+    {% for m in memberships %}
+    <div class="card" style="flex: 1; min-width: 280px; max-width: 400px; {% if active_organization and active_organization.pk == m.organization.pk %}border-color: var(--accent); box-shadow: 0 0 0 2px rgba(196,146,62,0.2);{% endif %}">
+        <div class="card-body">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.15rem; font-weight: 400;">
+                    {{ m.organization.name }}
+                </h3>
+                <span class="badge {% if m.role == 'admin' %}badge-accent{% else %}badge-sage{% endif %}">
+                    {{ m.get_role_display }}
+                </span>
+            </div>
+
+            <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+                {% if active_organization and active_organization.pk == m.organization.pk %}
+                    <span style="color: var(--accent); font-weight: 600;">{% trans "Active" %}</span>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                {% if not active_organization or active_organization.pk != m.organization.pk %}
+                <a href="{% url 'organization_switch' pk=m.organization.pk %}" class="btn btn-primary btn-sm">
+                    {% trans "Switch" %}
+                </a>
+                {% endif %}
+                {% if m.role == 'admin' %}
+                <a href="{% url 'organization_members' pk=m.organization.pk %}" class="btn btn-outline btn-sm">
+                    {% trans "Members" %}
+                </a>
+                <a href="{% url 'organization_edit' pk=m.organization.pk %}" class="btn btn-outline btn-sm">
+                    {% trans "Edit" %}
+                </a>
+                <a href="{% url 'organization_delete' pk=m.organization.pk %}" class="btn btn-outline btn-sm" style="color: var(--danger); border-color: var(--danger);">
+                    {% trans "Delete" %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    <h3>{% trans "No organizations yet" %}</h3>
+    <p>{% trans "Create an organization to start managing your songs and set lists." %}</p>
+    <a href="{% url 'organization_create' %}" class="btn btn-primary">{% trans "Create Organization" %}</a>
+</div>
+{% endif %}
+{% endblock %}

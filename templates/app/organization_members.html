@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Members" %} — {{ organization.name }} — SongLib{% endblock %}
+
+{% block extra_css %}
+<style>
+.user-autocomplete-wrap input { width: 100%; }
+.autocomplete-results {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+    background: var(--surface); border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm); box-shadow: var(--shadow-md);
+    max-height: 260px; overflow-y: auto; display: none;
+}
+.autocomplete-item {
+    padding: 10px 14px; cursor: pointer; font-size: 0.88rem;
+    transition: background var(--transition);
+}
+.autocomplete-item:hover, .autocomplete-item.highlighted {
+    background: var(--accent-light);
+}
+.autocomplete-empty {
+    padding: 12px 14px; color: var(--text-muted);
+    font-size: 0.85rem; font-style: italic;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{{ organization.name }} — {% trans "Members" %}</h2>
+    <a href="{% url 'organization_list' %}" class="btn btn-secondary">
+        {% trans "Back to Organizations" %}
+    </a>
+</div>
+
+<!-- Add member form -->
+<div class="card" style="margin-bottom: 24px;">
+    <div class="card-body">
+        <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.05rem; font-weight: 400; margin-bottom: 16px;">
+            {% trans "Add Member" %}
+        </h3>
+        <form method="post" action="{% url 'organization_add_member' pk=organization.pk %}" id="addMemberForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+                <label for="userSearchInput">{{ form.username.label }}</label>
+                <div class="user-autocomplete-wrap" style="position: relative;">
+                    <input type="text" id="userSearchInput" class="form-control" placeholder="{% trans 'Search users…' %}" autocomplete="off">
+                    <input type="hidden" name="username" id="selectedUsername" value="">
+                    <div class="autocomplete-results" id="userAutocompleteResults"></div>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0; min-width: 140px;">
+                <label for="id_role">{{ form.role.label }}</label>
+                {{ form.role }}
+            </div>
+            <button type="submit" class="btn btn-primary" id="addMemberBtn" style="height: 42px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                {% trans "Add" %}
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Members table -->
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>{% trans "User" %}</th>
+                <th>{% trans "Role" %}</th>
+                <th>{% trans "Joined" %}</th>
+                <th style="text-align: right;">{% trans "Actions" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in memberships %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(196,146,62,0.15); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; flex-shrink: 0;">
+                            {{ m.user.username.0|upper }}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">{{ m.user.username }}</div>
+                            {% if m.user.email %}
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">{{ m.user.email }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge {% if m.role == 'admin' %}badge-accent{% else %}badge-sage{% endif %}">
+                        {{ m.get_role_display }}
+                    </span>
+                </td>
+                <td style="color: var(--text-muted); font-size: 0.85rem;">{{ m.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <div class="table-actions">
+                        <form method="post" action="{% url 'organization_change_role' pk=organization.pk user_id=m.user.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-icon btn-sm" title="{% if m.role == 'admin' %}{% trans 'Make member' %}{% else %}{% trans 'Make admin' %}{% endif %}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'organization_remove_member' pk=organization.pk user_id=m.user.pk %}" style="display: inline;" onsubmit="return confirm('{% trans "Remove this member?" %}');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-icon btn-sm" style="color: var(--danger);" title="{% trans 'Remove' %}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var csrfToken = '{{ csrf_token }}';
+    var orgPk = {{ organization.pk }};
+    var searchInput = document.getElementById('userSearchInput');
+    var hiddenUsername = document.getElementById('selectedUsername');
+    var resultsBox = document.getElementById('userAutocompleteResults');
+    var debounceTimer = null;
+    var activeIndex = -1;
+
+    function selectItem(user) {
+        hiddenUsername.value = user.username;
+        searchInput.value = user.username;
+        resultsBox.innerHTML = '';
+        resultsBox.style.display = 'none';
+        activeIndex = -1;
+    }
+
+    function updateHighlight() {
+        var items = resultsBox.querySelectorAll('.autocomplete-item');
+        items.forEach(function(el, i) {
+            el.classList.toggle('highlighted', i === activeIndex);
+        });
+        if (activeIndex >= 0 && items[activeIndex]) {
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    searchInput.addEventListener('keydown', function(e) {
+        var items = resultsBox.querySelectorAll('.autocomplete-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % items.length;
+            updateHighlight();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + items.length) % items.length;
+            updateHighlight();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeIndex >= 0 && items[activeIndex]) {
+                items[activeIndex].click();
+            }
+        } else if (e.key === 'Escape') {
+            resultsBox.innerHTML = '';
+            resultsBox.style.display = 'none';
+            activeIndex = -1;
+        }
+    });
+
+    searchInput.addEventListener('input', function() {
+        var q = searchInput.value.trim();
+        hiddenUsername.value = '';
+        activeIndex = -1;
+        if (q.length < 1) { resultsBox.innerHTML = ''; resultsBox.style.display = 'none'; return; }
+
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+            fetch('/users/search/?q=' + encodeURIComponent(q) + '&org=' + orgPk, {
+                headers: { 'X-CSRFToken': csrfToken }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                resultsBox.innerHTML = '';
+                activeIndex = -1;
+                if (!data.results.length) {
+                    resultsBox.innerHTML = '<div class="autocomplete-empty">{% trans "No users found" %}</div>';
+                    resultsBox.style.display = 'block';
+                    return;
+                }
+                data.results.forEach(function(user) {
+                    var item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    var meta = user.email ? ' <small style="opacity:.6">— ' + user.email + '</small>' : '';
+                    item.innerHTML = user.username + meta;
+                    item.addEventListener('click', function() {
+                        selectItem(user);
+                    });
+                    resultsBox.appendChild(item);
+                });
+                resultsBox.style.display = 'block';
+            });
+        }, 200);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-autocomplete-wrap')) {
+            resultsBox.style.display = 'none';
+        }
+    });
+
+    document.getElementById('addMemberForm').addEventListener('submit', function(e) {
+        if (!hiddenUsername.value) {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+})();
+</script>
+{% endblock %}

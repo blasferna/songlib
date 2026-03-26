@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SongLib 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-26 18:20+0000\n"
+"POT-Creation-Date: 2026-03-26 19:15+0000\n"
 "PO-Revision-Date: 2024-01-01 00:00+0000\n"
 "Last-Translator: SongLib\n"
 "Language-Team: Spanish\n"
@@ -16,16 +16,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: app/admin.py:38 app/admin.py:40 templates/app/setlist_form.html:238
+#: app/admin.py:64 app/admin.py:66 templates/app/setlist_form.html:238
 #: templates/app/setlist_list.html:154
 msgid "Print"
 msgstr "Imprimir"
 
-#: app/admin.py:44 app/admin.py:45
+#: app/admin.py:70 app/admin.py:71
 msgid "Export as TXT"
 msgstr "Exportar como TXT"
 
-#: app/admin.py:49 app/admin.py:50 templates/app/setlist_form.html:239
+#: app/admin.py:75 app/admin.py:76 templates/app/setlist_form.html:239
 #: templates/app/setlist_list.html:158
 msgid "Reader"
 msgstr "Visor"
@@ -34,9 +34,9 @@ msgstr "Visor"
 msgid "Email"
 msgstr "Correo electrónico"
 
-#: app/forms.py:22 app/models.py:30 templates/app/song_form.html:205
+#: app/forms.py:22 app/models.py:130 templates/app/song_form.html:205
 #: templates/app/song_list.html:36 templates/app/tag_list.html:4
-#: templates/app/tag_list.html:65 templates/base.html:703
+#: templates/app/tag_list.html:65 templates/base.html:721
 msgid "Tags"
 msgstr "Etiquetas"
 
@@ -44,164 +44,300 @@ msgstr "Etiquetas"
 msgid "New tag name…"
 msgstr "Nombre de nueva etiqueta…"
 
-#: app/models.py:6
+#: app/forms.py:111 templates/registration/login.html:111
+#: templates/registration/register.html:108
+msgid "Username"
+msgstr "Usuario"
+
+#: app/forms.py:113
+msgid "Enter username…"
+msgstr "Ingrese nombre de usuario…"
+
+#: app/forms.py:117 app/models.py:13
+msgid "Admin"
+msgstr "Administrador"
+
+#: app/forms.py:117 app/models.py:14
+msgid "Member"
+msgstr "Miembro"
+
+#: app/forms.py:119 templates/app/organization_members.html:48
+msgid "Role"
+msgstr "Rol"
+
+#: app/models.py:8
 msgid "English (C, D, E…)"
 msgstr "Inglés (C, D, E…)"
 
-#: app/models.py:7
+#: app/models.py:9
 msgid "Latin (Do, Re, Mi…)"
 msgstr "Latino (Do, Re, Mi…)"
 
-#: app/models.py:12 app/models.py:23
+#: app/models.py:19 app/models.py:105 app/models.py:120
 msgid "name"
 msgstr "nombre"
 
-#: app/models.py:18 templates/app/song_form.html:186
+#: app/models.py:20
+msgid "slug"
+msgstr "slug"
+
+#: app/models.py:26
+msgid "created by"
+msgstr "creado por"
+
+#: app/models.py:28
+msgid "created at"
+msgstr "creado en"
+
+#: app/models.py:45
+msgid "Organization"
+msgstr "Organización"
+
+#: app/models.py:46 templates/app/organization_list.html:4
+#: templates/app/organization_list.html:8 templates/base.html:733
+msgid "Organizations"
+msgstr "Organizaciones"
+
+#: app/models.py:55 app/models.py:86
+msgid "user"
+msgstr "usuario"
+
+#: app/models.py:61 app/models.py:107 app/models.py:122 app/models.py:148
+#: app/models.py:169
+msgid "organization"
+msgstr "organización"
+
+#: app/models.py:64
+msgid "role"
+msgstr "rol"
+
+#: app/models.py:66
+msgid "joined at"
+msgstr "fecha de ingreso"
+
+#: app/models.py:69
+msgid "Membership"
+msgstr "Membresía"
+
+#: app/models.py:70
+msgid "Memberships"
+msgstr "Membresías"
+
+#: app/models.py:93
+msgid "active organization"
+msgstr "organización activa"
+
+#: app/models.py:97
+msgid "User profile"
+msgstr "Perfil de usuario"
+
+#: app/models.py:98
+msgid "User profiles"
+msgstr "Perfiles de usuario"
+
+#: app/models.py:114 templates/app/song_form.html:186
 #: templates/app/song_list.html:34
 msgid "Category"
 msgstr "Categoría"
 
-#: app/models.py:19 templates/app/category_list.html:4
-#: templates/app/category_list.html:8 templates/base.html:699
+#: app/models.py:115 templates/app/category_list.html:4
+#: templates/app/category_list.html:8 templates/base.html:717
 msgid "Categories"
 msgstr "Categorías"
 
-#: app/models.py:29
+#: app/models.py:129
 msgid "Tag"
 msgstr "Etiqueta"
 
-#: app/models.py:34 app/models.py:56
+#: app/models.py:135 app/models.py:160
 msgid "title"
 msgstr "título"
 
-#: app/models.py:36
+#: app/models.py:137
 msgid "category"
 msgstr "categoría"
 
-#: app/models.py:39
+#: app/models.py:140
 msgid "lyrics"
 msgstr "letras"
 
-#: app/models.py:40
+#: app/models.py:141
 msgid "Use ChordPro format: [Am]word [G]word. Chords are optional."
-msgstr ""
-"Usa formato ChordPro: [Am]palabra [G]palabra. Los acordes son opcionales."
+msgstr "Usa formato ChordPro: [Am]palabra [G]palabra. Los acordes son opcionales."
 
-#: app/models.py:43
+#: app/models.py:144
 msgid "original key"
 msgstr "tonalidad original"
 
-#: app/models.py:51 templates/app/setlist_form.html:302
+#: app/models.py:155 templates/app/setlist_form.html:302
 msgid "Song"
 msgstr "Canción"
 
-#: app/models.py:52 templates/app/category_list.html:37
+#: app/models.py:156 templates/app/category_list.html:37
 #: templates/app/setlist_form.html:281 templates/app/song_list.html:4
-#: templates/app/song_list.html:8 templates/base.html:695
+#: templates/app/song_list.html:8 templates/base.html:713
 msgid "Songs"
 msgstr "Canciones"
 
-#: app/models.py:57
+#: app/models.py:161
 msgid "date"
 msgstr "fecha"
 
-#: app/models.py:59
+#: app/models.py:163
 msgid "chord notation"
 msgstr "notación de acordes"
 
-#: app/models.py:69
+#: app/models.py:176
 msgid "Set list"
 msgstr "Repertorio"
 
-#: app/models.py:70
+#: app/models.py:177
 msgid "Set lists"
 msgstr "Repertorios"
 
-#: app/models.py:77
+#: app/models.py:184
 msgid "order"
 msgstr "orden"
 
-#: app/models.py:78
+#: app/models.py:185
 msgid "song"
 msgstr "canción"
 
-#: app/models.py:79
+#: app/models.py:186
 msgid "chord"
 msgstr "acorde"
 
-#: app/models.py:80
+#: app/models.py:187
 msgid "font size"
 msgstr "Tamaño de fuente"
 
-#: app/models.py:81
+#: app/models.py:188
 msgid "page break"
 msgstr "Salto de página"
 
-#: app/models.py:85
+#: app/models.py:192
 msgid "Set list song"
 msgstr "Canción por repertorio"
 
-#: app/models.py:86
+#: app/models.py:193
 msgid "Set list songs"
 msgstr "Canciones por repertorio"
 
-#: app/views.py:48
+#: app/views.py:51
+#, python-format
+msgid "%(username)s's Organization"
+msgstr "Organización de %(username)s"
+
+#: app/views.py:59
 msgid "Welcome! Your account has been created."
 msgstr "¡Bienvenido! Tu cuenta ha sido creada."
 
-#: app/views.py:98
+#: app/views.py:115
 msgid "Song created."
 msgstr "Canción creada."
 
-#: app/views.py:115
+#: app/views.py:135
 msgid "Song updated."
 msgstr "Canción actualizada."
 
-#: app/views.py:132
+#: app/views.py:154
 msgid "Song deleted."
 msgstr "Canción eliminada."
 
-#: app/views.py:157
+#: app/views.py:182
 msgid "Category created."
 msgstr "Categoría creada."
 
-#: app/views.py:173
+#: app/views.py:198
 msgid "Category updated."
 msgstr "Categoría actualizada."
 
-#: app/views.py:190
+#: app/views.py:215
 msgid "Category deleted."
 msgstr "Categoría eliminada."
 
-#: app/views.py:200
+#: app/views.py:225
 #, python-format
 msgid "This category has %(count)d song(s) that will also be deleted."
-msgstr ""
-"Esta categoría tiene %(count)d canción(es) que también serán eliminadas."
+msgstr "Esta categoría tiene %(count)d canción(es) que también serán eliminadas."
 
-#: app/views.py:221
+#: app/views.py:249
 msgid "Tag created."
 msgstr "Etiqueta creada."
 
-#: app/views.py:237
+#: app/views.py:265
 msgid "Tag updated."
 msgstr "Etiqueta actualizada."
 
-#: app/views.py:253
+#: app/views.py:281
 msgid "Tag deleted."
 msgstr "Etiqueta eliminada."
 
-#: app/views.py:296
+#: app/views.py:328
 msgid "Set list created."
 msgstr "Repertorio creado."
 
-#: app/views.py:314
+#: app/views.py:347
 msgid "Set list updated."
 msgstr "Repertorio actualizado."
 
-#: app/views.py:338
+#: app/views.py:371
 msgid "Set list deleted."
 msgstr "Repertorio eliminado."
+
+#: app/views.py:687
+msgid "Organization created."
+msgstr "Organización creada."
+
+#: app/views.py:708
+msgid "Organization updated."
+msgstr "Organización actualizada."
+
+#: app/views.py:741
+msgid "Organization deleted."
+msgstr "Organización eliminada."
+
+#: app/views.py:750
+#, python-format
+msgid "This will delete %(songs)d song(s) and %(setlists)d set list(s)."
+msgstr "Se eliminarán %(songs)d canción(es) y %(setlists)d repertorio(s)."
+
+#: app/views.py:767
+#, python-format
+msgid "Switched to %(org)s."
+msgstr "Cambiado a %(org)s."
+
+#: app/views.py:808
+#, python-format
+msgid "User '%(username)s' not found."
+msgstr "Usuario '%(username)s' no encontrado."
+
+#: app/views.py:818
+#, python-format
+msgid "%(username)s added to the organization."
+msgstr "%(username)s fue agregado a la organización."
+
+#: app/views.py:823
+#, python-format
+msgid "%(username)s is already a member."
+msgstr "%(username)s ya es miembro."
+
+#: app/views.py:842
+msgid "Cannot remove the only admin."
+msgstr "No se puede eliminar al único administrador."
+
+#: app/views.py:845
+msgid "Member removed."
+msgstr "Miembro eliminado."
+
+#: app/views.py:863
+msgid "Cannot demote the only admin."
+msgstr "No se puede degradar al único administrador."
+
+#: app/views.py:871
+#, python-format
+msgid "%(username)s is now %(role)s."
+msgstr "%(username)s ahora es %(role)s."
 
 #: templates/app/category_form.html:4 templates/app/category_form.html:8
 msgid "Edit Category"
@@ -212,14 +348,15 @@ msgstr "Editar categoría"
 msgid "Name"
 msgstr "Nombre"
 
-#: templates/app/category_form.html:21 templates/app/setlist_form.html:269
-#: templates/app/song_form.html:228 templates/app/tag_form.html:21
+#: templates/app/category_form.html:21 templates/app/organization_form.html:30
+#: templates/app/setlist_form.html:269 templates/app/song_form.html:228
+#: templates/app/tag_form.html:21
 msgid "Save Changes"
 msgstr "Guardar cambios"
 
 #: templates/app/category_form.html:22 templates/app/confirm_delete.html:28
-#: templates/app/setlist_form.html:271 templates/app/song_form.html:230
-#: templates/app/tag_form.html:22
+#: templates/app/organization_form.html:32 templates/app/setlist_form.html:271
+#: templates/app/song_form.html:230 templates/app/tag_form.html:22
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -227,23 +364,27 @@ msgstr "Cancelar"
 msgid "New category"
 msgstr "Nueva categoría"
 
-#: templates/app/category_list.html:22 templates/app/setlist_form.html:295
-#: templates/app/tag_list.html:79
+#: templates/app/category_list.html:22
+#: templates/app/organization_members.html:36
+#: templates/app/setlist_form.html:295 templates/app/tag_list.html:79
 msgid "Add"
 msgstr "Agregar"
 
-#: templates/app/category_list.html:38 templates/app/song_list.html:37
+#: templates/app/category_list.html:38
+#: templates/app/organization_members.html:50 templates/app/song_list.html:37
 msgid "Actions"
 msgstr "Acciones"
 
-#: templates/app/category_list.html:48 templates/app/setlist_list.html:171
-#: templates/app/song_list.html:55 templates/app/tag_list.html:95
+#: templates/app/category_list.html:48 templates/app/organization_list.html:46
+#: templates/app/setlist_list.html:171 templates/app/song_list.html:55
+#: templates/app/tag_list.html:95
 msgid "Edit"
 msgstr "Editar"
 
 #: templates/app/category_list.html:51 templates/app/confirm_delete.html:4
-#: templates/app/confirm_delete.html:27 templates/app/setlist_list.html:174
-#: templates/app/song_list.html:58 templates/app/tag_list.html:98
+#: templates/app/confirm_delete.html:27 templates/app/organization_list.html:49
+#: templates/app/setlist_list.html:174 templates/app/song_list.html:58
+#: templates/app/tag_list.html:98
 msgid "Delete"
 msgstr "Eliminar"
 
@@ -267,6 +408,85 @@ msgstr "¿Estás seguro de que quieres eliminar <strong>%(name)s</strong>?"
 #: templates/app/confirm_delete.html:21
 msgid "This action cannot be undone."
 msgstr "Esta acción no se puede deshacer."
+
+#: templates/app/organization_form.html:5
+#: templates/app/organization_form.html:10
+msgid "Edit Organization"
+msgstr "Editar organización"
+
+#: templates/app/organization_form.html:5
+#: templates/app/organization_form.html:10
+#: templates/app/organization_list.html:11
+msgid "New Organization"
+msgstr "Nueva organización"
+
+#: templates/app/organization_form.html:30
+#: templates/app/organization_list.html:62
+msgid "Create Organization"
+msgstr "Crear organización"
+
+#: templates/app/organization_list.html:31
+msgid "Active"
+msgstr "Activa"
+
+#: templates/app/organization_list.html:38
+msgid "Switch"
+msgstr "Cambiar"
+
+#: templates/app/organization_list.html:43
+#: templates/app/organization_members.html:4
+#: templates/app/organization_members.html:8
+msgid "Members"
+msgstr "Miembros"
+
+#: templates/app/organization_list.html:60
+msgid "No organizations yet"
+msgstr "Aún no hay organizaciones"
+
+#: templates/app/organization_list.html:61
+msgid "Create an organization to start managing your songs and set lists."
+msgstr "Crea una organización para comenzar a gestionar tus canciones y repertorios."
+
+#: templates/app/organization_members.html:10
+msgid "Back to Organizations"
+msgstr "Volver a organizaciones"
+
+#: templates/app/organization_members.html:18
+msgid "Add Member"
+msgstr "Agregar miembro"
+
+#: templates/app/organization_members.html:25
+msgid "Search users…"
+msgstr "Buscar usuarios…"
+
+#: templates/app/organization_members.html:47
+msgid "User"
+msgstr "Usuario"
+
+#: templates/app/organization_members.html:49
+msgid "Joined"
+msgstr "Ingreso"
+
+#: templates/app/organization_members.html:79
+msgid "Make member"
+msgstr "Hacer miembro"
+
+#: templates/app/organization_members.html:79
+msgid "Make admin"
+msgstr "Hacer administrador"
+
+#: templates/app/organization_members.html:83
+msgid "Remove this member?"
+msgstr "¿Eliminar este miembro?"
+
+#: templates/app/organization_members.html:85
+#: templates/app/setlist_form.html:325 templates/app/song_form.html:211
+msgid "Remove"
+msgstr "Quitar"
+
+#: templates/app/organization_members.html:167
+msgid "No users found"
+msgstr "No se encontraron usuarios"
 
 #: templates/app/setlist_detail.html:202
 msgid "Songs:"
@@ -323,17 +543,12 @@ msgstr "Fuente"
 msgid "Break"
 msgstr "Salto"
 
-#: templates/app/setlist_form.html:325 templates/app/song_form.html:211
-msgid "Remove"
-msgstr "Quitar"
-
 #: templates/app/setlist_form.html:334
 msgid "No songs yet. Use the form above to add songs."
-msgstr ""
-"Aún no hay canciones. Usa el formulario de arriba para agregar canciones."
+msgstr "Aún no hay canciones. Usa el formulario de arriba para agregar canciones."
 
 #: templates/app/setlist_list.html:4 templates/app/setlist_list.html:115
-#: templates/base.html:709
+#: templates/base.html:727
 msgid "Set Lists"
 msgstr "Repertorios"
 
@@ -367,8 +582,7 @@ msgstr "Aún no hay repertorios"
 
 #: templates/app/setlist_list.html:186
 msgid "Create your first set list to organize songs for a performance."
-msgstr ""
-"Crea tu primer repertorio para organizar canciones para una presentación."
+msgstr "Crea tu primer repertorio para organizar canciones para una presentación."
 
 #: templates/app/setlist_list.html:204
 msgid "Copied!"
@@ -438,9 +652,7 @@ msgstr "Letra"
 
 #: templates/app/song_form.html:201
 msgid "Use ChordPro format: [Am]word [G]word. Chords go in square brackets."
-msgstr ""
-"Usa formato ChordPro: [Am]palabra [G]palabra. Los acordes van entre "
-"corchetes."
+msgstr "Usa formato ChordPro: [Am]palabra [G]palabra. Los acordes van entre corchetes."
 
 #: templates/app/song_form.html:214
 msgid "Search tags…"
@@ -490,19 +702,27 @@ msgstr "Aún no hay etiquetas"
 msgid "Add a tag using the form above."
 msgstr "Agrega una etiqueta usando el formulario de arriba."
 
-#: templates/base.html:678
+#: templates/base.html:693
 msgid "Menu"
 msgstr "Menú"
 
-#: templates/base.html:692
+#: templates/base.html:710
 msgid "Library"
 msgstr "Biblioteca"
 
-#: templates/base.html:706
+#: templates/base.html:724
 msgid "Performance"
 msgstr "Presentación"
 
-#: templates/base.html:720
+#: templates/base.html:730
+msgid "Manage"
+msgstr "Gestión"
+
+#: templates/base.html:737
+msgid "Switch Organization"
+msgstr "Cambiar organización"
+
+#: templates/base.html:756
 msgid "Log out"
 msgstr "Cerrar sesión"
 
@@ -514,11 +734,6 @@ msgstr "Iniciar sesión"
 #: templates/registration/login.html:90
 msgid "Sign in to manage your library"
 msgstr "Inicia sesión para administrar tu biblioteca"
-
-#: templates/registration/login.html:111
-#: templates/registration/register.html:108
-msgid "Username"
-msgstr "Usuario"
 
 #: templates/registration/login.html:115
 #: templates/registration/register.html:116

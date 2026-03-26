@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.db import models
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 
@@ -7,9 +9,103 @@ NOTATION_CHOICES = [
     ("latin", _("Latin (Do, Re, Mi…)")),
 ]
 
+ROLE_CHOICES = [
+    ("admin", _("Admin")),
+    ("member", _("Member")),
+]
+
+
+class Organization(models.Model):
+    name = models.CharField(_("name"), max_length=200)
+    slug = models.SlugField(_("slug"), max_length=200, unique=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="created_organizations",
+        verbose_name=_("created by"),
+    )
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            n = 1
+            while Organization.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{n}"
+                n += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = _("Organization")
+        verbose_name_plural = _("Organizations")
+        ordering = ["name"]
+
+
+class Membership(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="memberships",
+        verbose_name=_("user"),
+    )
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        related_name="memberships",
+        verbose_name=_("organization"),
+    )
+    role = models.CharField(
+        _("role"), max_length=20, choices=ROLE_CHOICES, default="member"
+    )
+    created_at = models.DateTimeField(_("joined at"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Membership")
+        verbose_name_plural = _("Memberships")
+        unique_together = ("user", "organization")
+
+    def __str__(self):
+        return f"{self.user} — {self.organization} ({self.get_role_display()})"
+
+    @property
+    def is_admin(self):
+        return self.role == "admin"
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile",
+        verbose_name=_("user"),
+    )
+    active_organization = models.ForeignKey(
+        Organization,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("active organization"),
+    )
+
+    class Meta:
+        verbose_name = _("User profile")
+        verbose_name_plural = _("User profiles")
+
+    def __str__(self):
+        return f"{self.user} profile"
+
 
 class Category(models.Model):
-    name = models.CharField(_("name"), max_length=200, unique=True)
+    name = models.CharField(_("name"), max_length=200)
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, verbose_name=_("organization")
+    )
 
     def __str__(self):
         return self.name
@@ -17,10 +113,14 @@ class Category(models.Model):
     class Meta:
         verbose_name = _("Category")
         verbose_name_plural = _("Categories")
+        unique_together = ("name", "organization")
 
 
 class Tag(models.Model):
-    name = models.CharField(_("name"), max_length=200, unique=True)
+    name = models.CharField(_("name"), max_length=200)
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, verbose_name=_("organization")
+    )
 
     def __str__(self):
         return self.name
@@ -28,6 +128,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = _("Tag")
         verbose_name_plural = _("Tags")
+        unique_together = ("name", "organization")
 
 
 class Song(models.Model):
@@ -43,6 +144,9 @@ class Song(models.Model):
         _("original key"), max_length=10, blank=True, default=""
     )
     tags = models.ManyToManyField(Tag, blank=True)
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, verbose_name=_("organization")
+    )
 
     def __str__(self):
         return self.title
@@ -60,6 +164,9 @@ class SetList(models.Model):
         max_length=10,
         choices=NOTATION_CHOICES,
         default="english",
+    )
+    organization = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, verbose_name=_("organization")
     )
 
     def __str__(self):

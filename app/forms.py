@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
-from .models import Category, SetList, SetListSong, Song, Tag
+from .models import Category, Organization, SetList, SetListSong, Song, Tag
 
 
 class RegisterForm(UserCreationForm):
@@ -94,3 +94,28 @@ class SetListSongForm(forms.ModelForm):
             ),
             "page_break_after": forms.CheckboxInput(),
         }
+
+
+class OrganizationForm(forms.ModelForm):
+    class Meta:
+        model = Organization
+        fields = ["name"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+
+class MemberAddForm(forms.Form):
+    username = forms.CharField(
+        max_length=150,
+        label=_("Username"),
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": _("Enter username…")}
+        ),
+    )
+    role = forms.ChoiceField(
+        choices=[("admin", _("Admin")), ("member", _("Member"))],
+        initial="member",
+        label=_("Role"),
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )

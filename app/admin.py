@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from .models import Category, SetList, SetListSong, Song, Tag
+from .models import Category, Membership, Organization, SetList, SetListSong, Song, Tag, UserProfile
 
 
 class SetListSongInline(SortableTabularInline):
@@ -13,25 +13,51 @@ class SetListSongInline(SortableTabularInline):
     autocomplete_fields = ['song']
 
 
+class MembershipInline(admin.TabularInline):
+    model = Membership
+    extra = 1
+
+
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'created_by', 'created_at')
+    search_fields = ('name',)
+    inlines = [MembershipInline]
+
+
+@admin.register(Membership)
+class MembershipAdmin(admin.ModelAdmin):
+    list_display = ('user', 'organization', 'role', 'created_at')
+    list_filter = ('role', 'organization')
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'active_organization')
+    list_filter = ('active_organization',)
+
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'organization')
+    list_filter = ('organization',)
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'organization')
+    list_filter = ('organization',)
 
 
 @admin.register(Song)
 class SongAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'original_key',)
-    list_filter = ('category',)
+    list_display = ('title', 'category', 'original_key', 'organization')
+    list_filter = ('category', 'organization')
     search_fields = ('title', 'lyrics',)
 
 @admin.register(SetList)
 class SetListAdmin(SortableAdminBase, admin.ModelAdmin):
-    list_display = ('title', 'date', 'chord_notation', 'print_lint', 'export_as_txt', 'reader_link',)
+    list_display = ('title', 'date', 'chord_notation', 'organization', 'print_lint', 'export_as_txt', 'reader_link',)
 
     def print_lint(self, obj):
         url = reverse('setlist_detail', args=[obj.pk])

@@ -18,12 +18,55 @@ urlpatterns = [
     ),
     path("accounts/logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("accounts/register/", views.register_view, name="register"),
+    # Organizations
+    path("organizations/", views.organization_list, name="organization_list"),
+    path(
+        "organizations/create/",
+        views.organization_create,
+        name="organization_create",
+    ),
+    path(
+        "organizations/<int:pk>/edit/",
+        views.organization_edit,
+        name="organization_edit",
+    ),
+    path(
+        "organizations/<int:pk>/delete/",
+        views.organization_delete,
+        name="organization_delete",
+    ),
+    path(
+        "organizations/switch/<int:pk>/",
+        views.organization_switch,
+        name="organization_switch",
+    ),
+    path(
+        "organizations/<int:pk>/members/",
+        views.organization_members,
+        name="organization_members",
+    ),
+    path(
+        "organizations/<int:pk>/members/add/",
+        views.organization_add_member,
+        name="organization_add_member",
+    ),
+    path(
+        "organizations/<int:pk>/members/<int:user_id>/remove/",
+        views.organization_remove_member,
+        name="organization_remove_member",
+    ),
+    path(
+        "organizations/<int:pk>/members/<int:user_id>/role/",
+        views.organization_change_role,
+        name="organization_change_role",
+    ),
     # Songs
     path("songs/", views.song_list, name="song_list"),
     path("songs/create/", views.song_create, name="song_create"),
     path("songs/<int:pk>/edit/", views.song_edit, name="song_edit"),
     path("songs/<int:pk>/delete/", views.song_delete, name="song_delete"),
     path("songs/search/", views.song_search_api, name="song_search_api"),
+    path("users/search/", views.user_search_api, name="user_search_api"),
     # Categories
     path("categories/", views.category_list, name="category_list"),
     path("categories/<int:pk>/edit/", views.category_edit, name="category_edit"),
