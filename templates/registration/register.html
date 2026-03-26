@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Sign up" %} — SongLib{% endblock %}
+
+{% block extra_css %}
+.main-content--full {
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(196,146,62,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(122,143,126,0.06) 0%, transparent 50%),
+        var(--canvas);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.auth-brand {
+    text-align: center;
+    margin-bottom: 36px;
+}
+
+.auth-brand h1 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--text-primary);
+}
+
+.auth-brand h1 span { color: var(--accent); }
+
+.auth-brand p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+.auth-form .card-body { padding: 32px; }
+.auth-form .form-group { margin-bottom: 18px; }
+
+.auth-form .btn-primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.95rem;
+    margin-top: 8px;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.auth-footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-footer a:hover { text-decoration: underline; }
+
+.auth-errors {
+    background: var(--danger-light);
+    border: 1px solid rgba(192,57,43,0.15);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    font-size: 0.85rem;
+    color: var(--danger);
+}
+
+.auth-errors ul { list-style: none; padding: 0; margin: 0; }
+.auth-errors li { padding: 2px 0; }
+{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <div class="auth-brand">
+        <h1>Song<span>Lib</span></h1>
+        <p>{% trans "Create your account" %}</p>
+    </div>
+
+    <div class="auth-form card">
+        <div class="card-body">
+            {% if form.errors %}
+            <div class="auth-errors">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                    <p>{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_username">{% trans "Username" %}</label>
+                    <input type="text" name="username" id="id_username" class="form-control" autofocus required value="{{ form.username.value|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="id_email">{% trans "Email" %}</label>
+                    <input type="email" name="email" id="id_email" class="form-control" value="{{ form.email.value|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label for="id_password1">{% trans "Password" %}</label>
+                    <input type="password" name="password1" id="id_password1" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="id_password2">{% trans "Confirm password" %}</label>
+                    <input type="password" name="password2" id="id_password2" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">{% trans "Create account" %}</button>
+            </form>
+        </div>
+    </div>
+
+    <p class="auth-footer">
+        {% trans "Already have an account?" %} <a href="{% url 'login' %}">{% trans "Log in" %}</a>
+    </p>
+</div>
+{% endblock %}

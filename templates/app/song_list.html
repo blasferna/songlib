@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Songs" %} — SongLib{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% trans "Songs" %}</h2>
+    <a href="{% url 'song_create' %}" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        {% trans "New Song" %}
+    </a>
+</div>
+
+<form class="search-bar" method="get">
+    <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="q" value="{{ q }}" placeholder="{% trans 'Search songs…' %}">
+    </div>
+    <select name="category" class="form-control" style="width:auto;min-width:160px" onchange="this.form.submit()">
+        <option value="">{% trans "All categories" %}</option>
+        {% for cat in categories %}
+        <option value="{{ cat.pk }}" {% if cat.pk|stringformat:"d" == category_id %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+{% if page_obj.object_list %}
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>{% trans "Title" %}</th>
+                <th>{% trans "Category" %}</th>
+                <th>{% trans "Key" %}</th>
+                <th>{% trans "Tags" %}</th>
+                <th style="text-align:right">{% trans "Actions" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for song in page_obj %}
+            <tr>
+                <td><strong>{{ song.title }}</strong></td>
+                <td><span class="badge badge-accent">{{ song.category.name }}</span></td>
+                <td style="font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--text-muted)">{{ song.original_key|default:"—" }}</td>
+                <td>
+                    <div class="tags-list">
+                        {% for tag in song.tags.all %}
+                        <span class="badge badge-sage">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                </td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'song_edit' song.pk %}" class="btn btn-icon btn-sm" title="{% trans 'Edit' %}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </a>
+                        <a href="{% url 'song_delete' song.pk %}" class="btn btn-icon btn-sm" title="{% trans 'Delete' %}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&category={{ category_id }}">&laquo;</a>
+    {% else %}
+    <span class="disabled">&laquo;</span>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="active">{{ num }}</span>
+        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+        <a href="?page={{ num }}&q={{ q }}&category={{ category_id }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&q={{ q }}&category={{ category_id }}">&raquo;</a>
+    {% else %}
+    <span class="disabled">&raquo;</span>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <h3>{% trans "No songs yet" %}</h3>
+        <p>{% trans "Create your first song to get started." %}</p>
+        <a href="{% url 'song_create' %}" class="btn btn-primary">{% trans "New Song" %}</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

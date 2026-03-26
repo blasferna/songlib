@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Edit Tag" %} — SongLib{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% trans "Edit Tag" %}</h2>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_name">{% trans "Name" %}</label>
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% trans "Save Changes" %}</button>
+                <a href="{% url 'tag_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

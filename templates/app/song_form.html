@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% if song %}{% trans "Edit Song" %}{% else %}{% trans "New Song" %}{% endif %} — SongLib{% endblock %}
+
+{% block extra_css %}
+.song-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+.lyrics-preview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    min-height: 300px;
+    overflow: auto;
+    max-height: 600px;
+}
+
+.lyrics-preview .chord-line-wrapper {
+    margin-bottom: 0.3rem;
+}
+
+.lyrics-preview .chord-line-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.lyrics-preview .chord-pair {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.lyrics-preview .chord-annotation {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent);
+    display: block;
+    line-height: 1.4;
+    min-height: 1.2em;
+}
+
+.lyrics-preview .chord-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--text-primary);
+}
+
+.lyrics-preview .empty-preview {
+    color: var(--text-muted);
+    font-family: 'Source Sans 3', sans-serif;
+    font-style: italic;
+}
+
+@media (max-width: 900px) {
+    .song-form-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── Tag chips ─────────────────────────────────────────────── */
+.tag-chips-wrap {
+    position: relative;
+}
+
+.tag-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    min-height: 42px;
+    cursor: text;
+    transition: border var(--transition);
+}
+
+.tag-chips:focus-within {
+    border-color: var(--accent);
+}
+
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.tag-chip button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+    opacity: 0.8;
+}
+
+.tag-chip button:hover { opacity: 1; }
+
+.tag-chips input[type="text"] {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 100px;
+    padding: 2px 0;
+}
+
+.tag-autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 50;
+    box-shadow: var(--shadow-md);
+    display: none;
+}
+
+.tag-autocomplete-item {
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    transition: background var(--transition);
+}
+
+.tag-autocomplete-item:hover,
+.tag-autocomplete-item.highlighted {
+    background: var(--accent);
+    color: #fff;
+}
+
+.tag-autocomplete-empty {
+    padding: 10px 14px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% if song %}{% trans "Edit Song" %}{% else %}{% trans "New Song" %}{% endif %}</h2>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="song-form-grid">
+        <div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="id_title">{% trans "Title" %}</label>
+                        {{ form.title }}
+                        {{ form.title.errors }}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="id_category">{% trans "Category" %}</label>
+                            {{ form.category }}
+                            {{ form.category.errors }}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_original_key">{% trans "Original Key" %}</label>
+                            {{ form.original_key }}
+                            {{ form.original_key.errors }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_lyrics">{% trans "Lyrics" %} <span style="font-weight:400;color:var(--text-muted)">(ChordPro)</span></label>
+                        {{ form.lyrics }}
+                        {{ form.lyrics.errors }}
+                        <p class="form-help">{% trans "Use ChordPro format: [Am]word [G]word. Chords go in square brackets." %}</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{% trans "Tags" %}</label>
+                        <div class="tag-chips-wrap">
+                            <div class="tag-chips" id="tagChips">
+                                {% for tag in selected_tags %}
+                                <span class="tag-chip" data-id="{{ tag.pk }}">
+                                    {{ tag.name }}
+                                    <button type="button" aria-label="{% trans 'Remove' %}">&times;</button>
+                                </span>
+                                {% endfor %}
+                                <input type="text" id="tagSearchInput" placeholder="{% trans "Search tags…" %}" autocomplete="off">
+                            </div>
+                            <div class="tag-autocomplete-results" id="tagAutocompleteResults"></div>
+                        </div>
+                        <!-- Hidden inputs for form submission -->
+                        <div id="tagHiddenInputs">
+                            {% for tag in selected_tags %}
+                            <input type="hidden" name="tags" value="{{ tag.pk }}">
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            {% if song %}{% trans "Save Changes" %}{% else %}{% trans "Create Song" %}{% endif %}
+                        </button>
+                        <a href="{% url 'song_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label style="display:block;font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px">{% trans "Preview" %}</label>
+            <div class="lyrics-preview" id="preview">
+                <span class="empty-preview">{% trans "Start typing lyrics to see a preview…" %}</span>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var textarea = document.getElementById('id_lyrics');
+    var preview = document.getElementById('preview');
+    if (!textarea || !preview) return;
+
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
+    }
+
+    function renderPreview() {
+        var text = textarea.value;
+        if (!text.trim()) {
+            preview.innerHTML = '<span class="empty-preview">{% trans "Start typing lyrics to see a preview…" %}</span>';
+            return;
+        }
+        var lines = text.split('\n');
+        var html = '';
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            // Parse ChordPro: split into segments of {chord, text}
+            var segments = [];
+            var regex = /\[([^\]]+)\]/g;
+            var lastIndex = 0;
+            var match;
+            while ((match = regex.exec(line)) !== null) {
+                // Text before this chord (belongs to previous segment or is plain text)
+                if (match.index > lastIndex) {
+                    var beforeText = line.substring(lastIndex, match.index);
+                    if (segments.length > 0) {
+                        segments[segments.length - 1].text += beforeText;
+                    } else {
+                        segments.push({chord: '', text: beforeText});
+                    }
+                }
+                segments.push({chord: match[1], text: ''});
+                lastIndex = regex.lastIndex;
+            }
+            // Remaining text after last chord
+            if (lastIndex < line.length) {
+                var remaining = line.substring(lastIndex);
+                if (segments.length > 0) {
+                    segments[segments.length - 1].text += remaining;
+                } else {
+                    segments.push({chord: '', text: remaining});
+                }
+            }
+            // Empty line
+            if (segments.length === 0) {
+                segments.push({chord: '', text: '\u00a0'});
+            }
+
+            html += '<div class="chord-line-wrapper"><div class="chord-line-content">';
+            for (var j = 0; j < segments.length; j++) {
+                var s = segments[j];
+                html += '<span class="chord-pair">';
+                html += '<span class="chord-annotation">' + (s.chord ? escapeHtml(s.chord) : '') + '</span>';
+                html += '<span class="chord-text">' + escapeHtml(s.text || '\u00a0') + '</span>';
+                html += '</span>';
+            }
+            html += '</div></div>';
+        }
+        preview.innerHTML = html;
+    }
+
+    textarea.addEventListener('input', renderPreview);
+    renderPreview();
+})();
+</script>
+
+<script>
+(function() {
+    var chipsContainer = document.getElementById('tagChips');
+    var searchInput = document.getElementById('tagSearchInput');
+    var resultsBox = document.getElementById('tagAutocompleteResults');
+    var hiddenContainer = document.getElementById('tagHiddenInputs');
+    if (!chipsContainer || !searchInput) return;
+
+    var debounceTimer = null;
+    var activeIndex = -1;
+
+    function getSelectedIds() {
+        var ids = [];
+        hiddenContainer.querySelectorAll('input[name="tags"]').forEach(function(inp) {
+            ids.push(parseInt(inp.value));
+        });
+        return ids;
+    }
+
+    function addTag(id, name) {
+        if (getSelectedIds().indexOf(id) !== -1) return;
+
+        // Add chip
+        var chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.dataset.id = id;
+        chip.innerHTML = name + ' <button type="button" aria-label="Remove">&times;</button>';
+        chipsContainer.insertBefore(chip, searchInput);
+
+        // Add hidden input
+        var hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'tags';
+        hidden.value = id;
+        hiddenContainer.appendChild(hidden);
+
+        // Clear search
+        searchInput.value = '';
+        resultsBox.innerHTML = '';
+        resultsBox.style.display = 'none';
+        activeIndex = -1;
+    }
+
+    function removeTag(id) {
+        var chip = chipsContainer.querySelector('.tag-chip[data-id="' + id + '"]');
+        if (chip) chip.remove();
+        var hidden = hiddenContainer.querySelector('input[value="' + id + '"]');
+        if (hidden) hidden.remove();
+    }
+
+    // Remove chip on × click
+    chipsContainer.addEventListener('click', function(e) {
+        var btn = e.target.closest('.tag-chip button');
+        if (!btn) return;
+        var chip = btn.closest('.tag-chip');
+        if (chip) removeTag(parseInt(chip.dataset.id));
+    });
+
+    // Focus input when clicking the chips area
+    chipsContainer.addEventListener('click', function(e) {
+        if (e.target === chipsContainer) searchInput.focus();
+    });
+
+    function updateHighlight() {
+        var items = resultsBox.querySelectorAll('.tag-autocomplete-item');
+        items.forEach(function(el, i) {
+            el.classList.toggle('highlighted', i === activeIndex);
+        });
+        if (activeIndex >= 0 && items[activeIndex]) {
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    searchInput.addEventListener('keydown', function(e) {
+        var items = resultsBox.querySelectorAll('.tag-autocomplete-item');
+
+        if (e.key === 'ArrowDown' && items.length) {
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % items.length;
+            updateHighlight();
+        } else if (e.key === 'ArrowUp' && items.length) {
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + items.length) % items.length;
+            updateHighlight();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeIndex >= 0 && items[activeIndex]) {
+                items[activeIndex].click();
+            }
+        } else if (e.key === 'Escape') {
+            resultsBox.innerHTML = '';
+            resultsBox.style.display = 'none';
+            activeIndex = -1;
+        } else if (e.key === 'Backspace' && !searchInput.value) {
+            // Remove last chip
+            var chips = chipsContainer.querySelectorAll('.tag-chip');
+            if (chips.length) {
+                var last = chips[chips.length - 1];
+                removeTag(parseInt(last.dataset.id));
+            }
+        }
+    });
+
+    searchInput.addEventListener('input', function() {
+        var q = searchInput.value.trim();
+        activeIndex = -1;
+        if (q.length < 1) { resultsBox.innerHTML = ''; resultsBox.style.display = 'none'; return; }
+
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+            fetch('/tags/search/?q=' + encodeURIComponent(q))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                resultsBox.innerHTML = '';
+                activeIndex = -1;
+                var selected = getSelectedIds();
+                var filtered = data.results.filter(function(t) { return selected.indexOf(t.id) === -1; });
+
+                if (!filtered.length) {
+                    resultsBox.innerHTML = '<div class="tag-autocomplete-empty">{% trans "No tags found" %}</div>';
+                    resultsBox.style.display = 'block';
+                    return;
+                }
+                filtered.forEach(function(tag) {
+                    var item = document.createElement('div');
+                    item.className = 'tag-autocomplete-item';
+                    item.textContent = tag.name;
+                    item.addEventListener('click', function() {
+                        addTag(tag.id, tag.name);
+                        searchInput.focus();
+                    });
+                    resultsBox.appendChild(item);
+                });
+                resultsBox.style.display = 'block';
+            });
+        }, 200);
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.tag-chips-wrap')) {
+            resultsBox.style.display = 'none';
+            activeIndex = -1;
+        }
+    });
+})();
+</script>
+{% endblock %}

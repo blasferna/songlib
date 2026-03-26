@@ -1,0 +1,573 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% if setlist %}{% trans "Edit Set List" %}{% else %}{% trans "New Set List" %}{% endif %} — SongLib{% endblock %}
+
+{% block extra_css %}
+.setlist-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* Song management section */
+.songs-section h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.add-song-bar {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--border-light);
+    border-radius: var(--radius);
+}
+
+.add-song-bar input {
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.88rem;
+    background: var(--surface);
+    color: var(--text-primary);
+}
+
+.song-autocomplete-wrap {
+    flex: 2;
+    position: relative;
+}
+
+.song-autocomplete-wrap input {
+    width: 100%;
+}
+
+.autocomplete-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+}
+
+.autocomplete-results.visible { display: block; }
+
+.autocomplete-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.88rem;
+    transition: background var(--transition);
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.highlighted {
+    background: var(--accent-light);
+}
+
+.autocomplete-item-title { font-weight: 600; }
+
+.autocomplete-item-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 8px;
+}
+
+.autocomplete-empty {
+    padding: 12px 14px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.add-song-bar .key-input { flex: 0 0 100px; }
+
+/* Sortable song list */
+.sortable-songs {
+    min-height: 40px;
+}
+
+.sortable-song {
+    display: grid;
+    grid-template-columns: 32px 1fr 100px 70px 70px 40px;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    transition: box-shadow var(--transition);
+    cursor: grab;
+}
+
+.sortable-song:active { cursor: grabbing; }
+
+.sortable-song.sortable-ghost {
+    opacity: 0.4;
+    background: var(--accent-light);
+}
+
+.sortable-song.sortable-chosen {
+    box-shadow: var(--shadow-md);
+}
+
+.drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: grab;
+}
+
+.drag-handle svg { width: 18px; height: 18px; }
+
+.song-item-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.song-item-order {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+}
+
+.sortable-song input {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.85rem;
+    background: var(--surface);
+    color: var(--text-primary);
+    width: 100%;
+}
+
+.sortable-song input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.remove-song {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.remove-song:hover {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.remove-song svg { width: 16px; height: 16px; }
+
+.songs-header-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 100px 70px 70px 40px;
+    gap: 10px;
+    padding: 0 16px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+.empty-songs {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+}
+
+@media (max-width: 768px) {
+    .sortable-song {
+        grid-template-columns: 28px 1fr 80px 36px;
+    }
+    .sortable-song .font-col,
+    .sortable-song .break-col,
+    .songs-header-row .font-col,
+    .songs-header-row .break-col {
+        display: none;
+    }
+    .songs-header-row {
+        grid-template-columns: 28px 1fr 80px 36px;
+    }
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% if setlist %}{% trans "Edit Set List" %}{% else %}{% trans "New Set List" %}{% endif %}</h2>
+    {% if setlist %}
+    <div style="display:flex;gap:6px">
+        <a href="{% url 'setlist_detail' setlist.pk %}" class="btn btn-outline btn-sm">{% trans "Print" %}</a>
+        <a href="{% url 'setlist_reader' setlist.pk %}" class="btn btn-outline btn-sm">{% trans "Reader" %}</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="setlist-layout">
+    <!-- Details form -->
+    <div class="card">
+        <div class="card-body">
+            <form method="post" id="setlistForm">
+                {% csrf_token %}
+                <div class="form-row" style="grid-template-columns: 2fr 1fr 1fr;">
+                    <div class="form-group">
+                        <label for="id_title">{% trans "Title" %}</label>
+                        {{ form.title }}
+                        {{ form.title.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_date">{% trans "Date" %}</label>
+                        {{ form.date }}
+                        {{ form.date.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_chord_notation">{% trans "Notation" %}</label>
+                        {{ form.chord_notation }}
+                        {{ form.chord_notation.errors }}
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        {% if setlist %}{% trans "Save Changes" %}{% else %}{% trans "Create Set List" %}{% endif %}
+                    </button>
+                    <a href="{% url 'setlist_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if setlist %}
+    <!-- Songs management -->
+    <div class="songs-section">
+        <h3>
+            {% trans "Songs" %}
+            <span class="badge badge-muted" id="songCount">{{ setlist_songs|length }}</span>
+        </h3>
+
+        <!-- Add song bar -->
+        <div class="add-song-bar">
+            <div class="song-autocomplete-wrap">
+                <input type="text" id="songSearchInput" placeholder="{% trans "Search songs…" %}" autocomplete="off">
+                <input type="hidden" id="addSongId" value="">
+                <div class="autocomplete-results" id="autocompleteResults"></div>
+            </div>
+            <input type="text" id="addSongChord" placeholder="{% trans 'Key' %}" class="key-input">
+            <button type="button" class="btn btn-primary" id="addSongBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                {% trans "Add" %}
+            </button>
+        </div>
+
+        <!-- Column headers -->
+        <div class="songs-header-row">
+            <span></span>
+            <span>{% trans "Song" %}</span>
+            <span>{% trans "Key" %}</span>
+            <span class="font-col">{% trans "Font" %}</span>
+            <span class="break-col">{% trans "Break" %}</span>
+            <span></span>
+        </div>
+
+        <!-- Sortable list -->
+        <div class="sortable-songs" id="sortableSongs">
+            {% for sls in setlist_songs %}
+            <div class="sortable-song" data-id="{{ sls.pk }}">
+                <div class="drag-handle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="8" y2="6.01"/><line x1="16" y1="6" x2="16" y2="6.01"/><line x1="8" y1="12" x2="8" y2="12.01"/><line x1="16" y1="12" x2="16" y2="12.01"/><line x1="8" y1="18" x2="8" y2="18.01"/><line x1="16" y1="18" x2="16" y2="18.01"/></svg>
+                </div>
+                <div>
+                    <div class="song-item-title">{{ sls.song.title }}</div>
+                    <div class="song-item-order">#{{ sls.order }}</div>
+                </div>
+                <input type="text" value="{{ sls.chord }}" placeholder="{% trans 'Key' %}" data-field="chord" data-sls-id="{{ sls.pk }}">
+                <input type="number" value="{{ sls.font_size }}" min="8" max="36" data-field="font_size" data-sls-id="{{ sls.pk }}" class="font-col">
+                <label class="form-check break-col" style="justify-content:center">
+                    <input type="checkbox" {% if sls.page_break_after %}checked{% endif %} data-field="page_break_after" data-sls-id="{{ sls.pk }}">
+                </label>
+                <button type="button" class="remove-song" data-id="{{ sls.pk }}" title="{% trans 'Remove' %}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not setlist_songs %}
+        <div class="empty-songs" id="emptySongs">
+            {% trans "No songs yet. Use the form above to add songs." %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if setlist %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+<script>
+(function() {
+    var csrfToken = '{{ csrf_token }}';
+    var setlistPk = {{ setlist.pk }};
+
+    // ─── Sortable (drag to reorder) ───────────────────────────────────
+    var container = document.getElementById('sortableSongs');
+    if (container) {
+        new Sortable(container, {
+            handle: '.drag-handle',
+            animation: 200,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function() {
+                var items = container.querySelectorAll('.sortable-song');
+                var order = [];
+                items.forEach(function(el, i) {
+                    order.push(parseInt(el.dataset.id));
+                    var orderLabel = el.querySelector('.song-item-order');
+                    if (orderLabel) orderLabel.textContent = '#' + (i + 1);
+                });
+                fetch('/setlists/' + setlistPk + '/reorder/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ order: order })
+                });
+            }
+        });
+    }
+
+    // ─── Autocomplete song search ────────────────────────────────────
+    var searchInput = document.getElementById('songSearchInput');
+    var hiddenId = document.getElementById('addSongId');
+    var resultsBox = document.getElementById('autocompleteResults');
+    var addBtn = document.getElementById('addSongBtn');
+    var addChord = document.getElementById('addSongChord');
+    var debounceTimer = null;
+    var activeIndex = -1;
+
+    function selectItem(song) {
+        hiddenId.value = song.id;
+        searchInput.value = song.title;
+        addChord.value = song.original_key || '';
+        resultsBox.innerHTML = '';
+        resultsBox.style.display = 'none';
+        activeIndex = -1;
+    }
+
+    function updateHighlight() {
+        var items = resultsBox.querySelectorAll('.autocomplete-item');
+        items.forEach(function(el, i) {
+            el.classList.toggle('highlighted', i === activeIndex);
+        });
+        if (activeIndex >= 0 && items[activeIndex]) {
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    searchInput.addEventListener('keydown', function(e) {
+        var items = resultsBox.querySelectorAll('.autocomplete-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % items.length;
+            updateHighlight();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + items.length) % items.length;
+            updateHighlight();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeIndex >= 0 && items[activeIndex]) {
+                items[activeIndex].click();
+            }
+        } else if (e.key === 'Escape') {
+            resultsBox.innerHTML = '';
+            resultsBox.style.display = 'none';
+            activeIndex = -1;
+        }
+    });
+
+    searchInput.addEventListener('input', function() {
+        var q = searchInput.value.trim();
+        hiddenId.value = '';
+        activeIndex = -1;
+        if (q.length < 1) { resultsBox.innerHTML = ''; resultsBox.style.display = 'none'; return; }
+
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function() {
+            fetch('/songs/search/?q=' + encodeURIComponent(q), {
+                headers: { 'X-CSRFToken': csrfToken }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                resultsBox.innerHTML = '';
+                activeIndex = -1;
+                if (!data.results.length) {
+                    resultsBox.innerHTML = '<div class="autocomplete-empty">No results</div>';
+                    resultsBox.style.display = 'block';
+                    return;
+                }
+                data.results.forEach(function(song) {
+                    var item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.dataset.id = song.id;
+                    item.dataset.key = song.original_key || '';
+                    var meta = song.category ? ' <small style="opacity:.6">— ' + song.category + '</small>' : '';
+                    item.innerHTML = song.title + meta;
+                    item.addEventListener('click', function() {
+                        selectItem(song);
+                    });
+                    resultsBox.appendChild(item);
+                });
+                resultsBox.style.display = 'block';
+            });
+        }, 200);
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.song-autocomplete-wrap')) {
+            resultsBox.style.display = 'none';
+        }
+    });
+
+    // ─── Add song ─────────────────────────────────────────────────────
+    addBtn.addEventListener('click', function() {
+        var songId = hiddenId.value;
+        if (!songId) return;
+
+        var formData = new FormData();
+        formData.append('song_id', songId);
+        formData.append('chord', addChord.value);
+
+        fetch('/setlists/' + setlistPk + '/add-song/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) return;
+            // Remove empty state
+            var empty = document.getElementById('emptySongs');
+            if (empty) empty.remove();
+
+            var el = document.createElement('div');
+            el.className = 'sortable-song';
+            el.dataset.id = data.id;
+            el.innerHTML =
+                '<div class="drag-handle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="8" y2="6.01"/><line x1="16" y1="6" x2="16" y2="6.01"/><line x1="8" y1="12" x2="8" y2="12.01"/><line x1="16" y1="12" x2="16" y2="12.01"/><line x1="8" y1="18" x2="8" y2="18.01"/><line x1="16" y1="18" x2="16" y2="18.01"/></svg></div>' +
+                '<div><div class="song-item-title">' + data.song_title + '</div><div class="song-item-order">#' + data.order + '</div></div>' +
+                '<input type="text" value="' + (data.chord || '') + '" placeholder="Key" data-field="chord" data-sls-id="' + data.id + '">' +
+                '<input type="number" value="' + data.font_size + '" min="8" max="36" data-field="font_size" data-sls-id="' + data.id + '" class="font-col">' +
+                '<label class="form-check break-col" style="justify-content:center"><input type="checkbox" data-field="page_break_after" data-sls-id="' + data.id + '"></label>' +
+                '<button type="button" class="remove-song" data-id="' + data.id + '" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+
+            container.appendChild(el);
+            updateCount();
+            searchInput.value = '';
+            hiddenId.value = '';
+            addChord.value = '';
+        });
+    });
+
+    // ─── Remove song ──────────────────────────────────────────────────
+    container.addEventListener('click', function(e) {
+        var btn = e.target.closest('.remove-song');
+        if (!btn) return;
+        var id = btn.dataset.id;
+        fetch('/setlists/' + setlistPk + '/remove-song/' + id + '/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data.ok) return;
+            btn.closest('.sortable-song').remove();
+            // Update order labels
+            container.querySelectorAll('.sortable-song').forEach(function(el, i) {
+                var orderLabel = el.querySelector('.song-item-order');
+                if (orderLabel) orderLabel.textContent = '#' + (i + 1);
+            });
+            updateCount();
+        });
+    });
+
+    // ─── Inline field save (chord, font_size, page_break_after) ──────
+    container.addEventListener('change', function(e) {
+        var el = e.target;
+        if (!el.dataset || !el.dataset.field) return;
+        var slsId = el.dataset.slsId;
+        var field = el.dataset.field;
+        var value;
+        if (field === 'page_break_after') {
+            value = el.checked;
+        } else if (field === 'font_size') {
+            value = parseInt(el.value) || 14;
+        } else {
+            value = el.value;
+        }
+
+        var body = {};
+        body[field] = value;
+
+        fetch('/api/setlistsongs/' + slsId + '/', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(body)
+        });
+    });
+
+    function updateCount() {
+        var badge = document.getElementById('songCount');
+        if (badge) {
+            badge.textContent = container.querySelectorAll('.sortable-song').length;
+        }
+    }
+})();
+</script>
+{% endif %}
+{% endblock %}

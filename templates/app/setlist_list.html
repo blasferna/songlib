@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Set Lists" %} — SongLib{% endblock %}
+
+{% block extra_css %}
+.setlist-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.setlist-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 24px 28px;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.setlist-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.setlist-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.setlist-card-info h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+}
+
+.setlist-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.setlist-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.setlist-meta svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
+}
+
+.setlist-links {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.setlist-card .table-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 4px;
+}
+
+@media (max-width: 600px) {
+    .setlist-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 20px;
+    }
+    .setlist-links {
+        flex-wrap: wrap;
+    }
+}
+
+.setlist-search {
+    margin-bottom: 20px;
+}
+
+.setlist-search form {
+    display: flex;
+    gap: 8px;
+    max-width: 480px;
+}
+
+.setlist-search input[type="text"] {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: .95rem;
+    background: var(--surface);
+    color: var(--text-primary);
+    transition: border var(--transition);
+}
+
+.setlist-search input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% trans "Set Lists" %}</h2>
+    <a href="{% url 'setlist_create' %}" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        {% trans "New Set List" %}
+    </a>
+</div>
+
+<div class="setlist-search">
+    <form method="get" action="{% url 'setlist_list' %}">
+        <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans "Search set lists…" %}">
+        <button type="submit" class="btn btn-outline">{% trans "Search" %}</button>
+        {% if request.GET.q %}
+        <a href="{% url 'setlist_list' %}" class="btn btn-secondary">{% trans "Clear" %}</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if setlists %}
+<div class="setlist-grid">
+    {% for sl in setlists %}
+    <div class="setlist-card">
+        <div class="setlist-card-info">
+            <h3>{{ sl.title }}</h3>
+            <div class="setlist-meta">
+                <span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    {{ sl.date }}
+                </span>
+                <span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                    {{ sl.song_count }} {% trans "songs" %}
+                </span>
+                <span class="badge badge-muted">{{ sl.get_chord_notation_display }}</span>
+            </div>
+        </div>
+
+        <div class="setlist-links">
+            <a href="{% url 'setlist_detail' sl.pk %}" class="btn btn-outline btn-sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                {% trans "Print" %}
+            </a>
+            <a href="{% url 'setlist_reader' sl.pk %}" class="btn btn-outline btn-sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                {% trans "Reader" %}
+            </a>
+            <a href="{% url 'setlist_export_txt' sl.pk %}" class="btn btn-outline btn-sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                {% trans "Export" %}
+            </a>
+            <button type="button" class="btn btn-outline btn-sm share-btn" data-url="{{ request.scheme }}://{{ request.get_host }}{% url 'setlist_reader' sl.pk %}" data-title="{{ sl.title }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                {% trans "Share" %}
+            </button>
+        </div>
+
+        <div class="table-actions">
+            <a href="{% url 'setlist_edit' sl.pk %}" class="btn btn-icon btn-sm" title="{% trans 'Edit' %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </a>
+            <a href="{% url 'setlist_delete' sl.pk %}" class="btn btn-icon btn-sm" title="{% trans 'Delete' %}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <h3>{% trans "No set lists yet" %}</h3>
+        <p>{% trans "Create your first set list to organize songs for a performance." %}</p>
+        <a href="{% url 'setlist_create' %}" class="btn btn-primary">{% trans "New Set List" %}</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.share-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var url = btn.dataset.url;
+        var title = btn.dataset.title;
+        if (navigator.share) {
+            navigator.share({ title: title, url: url }).catch(function() {});
+        } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(function() {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg> {% trans "Copied!" %}';
+                setTimeout(function() { btn.innerHTML = orig; }, 2000);
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -5,6 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
     <title>{{ setlist.title }} — Reader</title>
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ setlist.title }}">
+    <meta property="og:description" content="{% blocktrans with count=total date=setlist.date %}Set list with {{ count }} songs — {{ date }}{% endblocktrans %}">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{% url 'setlist_reader' setlist.pk %}">
+    <meta property="og:site_name" content="SongLib">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ setlist.title }}">
+    <meta name="twitter:description" content="{% blocktrans with count=total date=setlist.date %}Set list with {{ count }} songs — {{ date }}{% endblocktrans %}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">

@@ -1,24 +1,23 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# SongLib Spanish translations.
+# Copyright (C) 2024 SongLib
+# This file is distributed under the same license as the SongLib package.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: SongLib 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-25 19:37+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2026-03-26 18:20+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: SongLib\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: app/admin.py:38 app/admin.py:40
+#: app/admin.py:38 app/admin.py:40 templates/app/setlist_form.html:238
+#: templates/app/setlist_list.html:154
 msgid "Print"
 msgstr "Imprimir"
 
@@ -26,9 +25,24 @@ msgstr "Imprimir"
 msgid "Export as TXT"
 msgstr "Exportar como TXT"
 
-#: app/admin.py:49 app/admin.py:50
+#: app/admin.py:49 app/admin.py:50 templates/app/setlist_form.html:239
+#: templates/app/setlist_list.html:158
 msgid "Reader"
 msgstr "Visor"
+
+#: app/forms.py:10 templates/registration/register.html:112
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: app/forms.py:22 app/models.py:30 templates/app/song_form.html:205
+#: templates/app/song_list.html:36 templates/app/tag_list.html:4
+#: templates/app/tag_list.html:65 templates/base.html:703
+msgid "Tags"
+msgstr "Etiquetas"
+
+#: app/forms.py:59
+msgid "New tag name…"
+msgstr "Nombre de nueva etiqueta…"
 
 #: app/models.py:6
 msgid "English (C, D, E…)"
@@ -42,21 +56,19 @@ msgstr "Latino (Do, Re, Mi…)"
 msgid "name"
 msgstr "nombre"
 
-#: app/models.py:18
+#: app/models.py:18 templates/app/song_form.html:186
+#: templates/app/song_list.html:34
 msgid "Category"
 msgstr "Categoría"
 
-#: app/models.py:19
+#: app/models.py:19 templates/app/category_list.html:4
+#: templates/app/category_list.html:8 templates/base.html:699
 msgid "Categories"
 msgstr "Categorías"
 
 #: app/models.py:29
 msgid "Tag"
 msgstr "Etiqueta"
-
-#: app/models.py:30
-msgid "Tags"
-msgstr "Etiquetas"
 
 #: app/models.py:34 app/models.py:56
 msgid "title"
@@ -72,17 +84,20 @@ msgstr "letras"
 
 #: app/models.py:40
 msgid "Use ChordPro format: [Am]word [G]word. Chords are optional."
-msgstr "Usa formato ChordPro: [Am]palabra [G]palabra. Los acordes son opcionales."
+msgstr ""
+"Usa formato ChordPro: [Am]palabra [G]palabra. Los acordes son opcionales."
 
 #: app/models.py:43
 msgid "original key"
 msgstr "tonalidad original"
 
-#: app/models.py:51
+#: app/models.py:51 templates/app/setlist_form.html:302
 msgid "Song"
 msgstr "Canción"
 
-#: app/models.py:52
+#: app/models.py:52 templates/app/category_list.html:37
+#: templates/app/setlist_form.html:281 templates/app/song_list.html:4
+#: templates/app/song_list.html:8 templates/base.html:695
 msgid "Songs"
 msgstr "Canciones"
 
@@ -130,6 +145,129 @@ msgstr "Canción por repertorio"
 msgid "Set list songs"
 msgstr "Canciones por repertorio"
 
+#: app/views.py:48
+msgid "Welcome! Your account has been created."
+msgstr "¡Bienvenido! Tu cuenta ha sido creada."
+
+#: app/views.py:98
+msgid "Song created."
+msgstr "Canción creada."
+
+#: app/views.py:115
+msgid "Song updated."
+msgstr "Canción actualizada."
+
+#: app/views.py:132
+msgid "Song deleted."
+msgstr "Canción eliminada."
+
+#: app/views.py:157
+msgid "Category created."
+msgstr "Categoría creada."
+
+#: app/views.py:173
+msgid "Category updated."
+msgstr "Categoría actualizada."
+
+#: app/views.py:190
+msgid "Category deleted."
+msgstr "Categoría eliminada."
+
+#: app/views.py:200
+#, python-format
+msgid "This category has %(count)d song(s) that will also be deleted."
+msgstr ""
+"Esta categoría tiene %(count)d canción(es) que también serán eliminadas."
+
+#: app/views.py:221
+msgid "Tag created."
+msgstr "Etiqueta creada."
+
+#: app/views.py:237
+msgid "Tag updated."
+msgstr "Etiqueta actualizada."
+
+#: app/views.py:253
+msgid "Tag deleted."
+msgstr "Etiqueta eliminada."
+
+#: app/views.py:296
+msgid "Set list created."
+msgstr "Repertorio creado."
+
+#: app/views.py:314
+msgid "Set list updated."
+msgstr "Repertorio actualizado."
+
+#: app/views.py:338
+msgid "Set list deleted."
+msgstr "Repertorio eliminado."
+
+#: templates/app/category_form.html:4 templates/app/category_form.html:8
+msgid "Edit Category"
+msgstr "Editar categoría"
+
+#: templates/app/category_form.html:16 templates/app/category_list.html:36
+#: templates/app/tag_form.html:16
+msgid "Name"
+msgstr "Nombre"
+
+#: templates/app/category_form.html:21 templates/app/setlist_form.html:269
+#: templates/app/song_form.html:228 templates/app/tag_form.html:21
+msgid "Save Changes"
+msgstr "Guardar cambios"
+
+#: templates/app/category_form.html:22 templates/app/confirm_delete.html:28
+#: templates/app/setlist_form.html:271 templates/app/song_form.html:230
+#: templates/app/tag_form.html:22
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: templates/app/category_list.html:17
+msgid "New category"
+msgstr "Nueva categoría"
+
+#: templates/app/category_list.html:22 templates/app/setlist_form.html:295
+#: templates/app/tag_list.html:79
+msgid "Add"
+msgstr "Agregar"
+
+#: templates/app/category_list.html:38 templates/app/song_list.html:37
+msgid "Actions"
+msgstr "Acciones"
+
+#: templates/app/category_list.html:48 templates/app/setlist_list.html:171
+#: templates/app/song_list.html:55 templates/app/tag_list.html:95
+msgid "Edit"
+msgstr "Editar"
+
+#: templates/app/category_list.html:51 templates/app/confirm_delete.html:4
+#: templates/app/confirm_delete.html:27 templates/app/setlist_list.html:174
+#: templates/app/song_list.html:58 templates/app/tag_list.html:98
+msgid "Delete"
+msgstr "Eliminar"
+
+#: templates/app/category_list.html:65
+msgid "No categories yet"
+msgstr "Aún no hay categorías"
+
+#: templates/app/category_list.html:66
+msgid "Add a category using the form above."
+msgstr "Agrega una categoría usando el formulario de arriba."
+
+#: templates/app/confirm_delete.html:8
+msgid "Confirm Deletion"
+msgstr "Confirmar eliminación"
+
+#: templates/app/confirm_delete.html:20
+#, python-format
+msgid "Are you sure you want to delete <strong>%(name)s</strong>?"
+msgstr "¿Estás seguro de que quieres eliminar <strong>%(name)s</strong>?"
+
+#: templates/app/confirm_delete.html:21
+msgid "This action cannot be undone."
+msgstr "Esta acción no se puede deshacer."
+
 #: templates/app/setlist_detail.html:202
 msgid "Songs:"
 msgstr "Canciones:"
@@ -142,42 +280,280 @@ msgstr "Tamaño de fuente"
 msgid "Page break after this song"
 msgstr "Salto de página después de esta canción"
 
-#: templates/app/setlist_reader.html:632
+#: templates/app/setlist_form.html:4 templates/app/setlist_form.html:235
+msgid "Edit Set List"
+msgstr "Editar repertorio"
+
+#: templates/app/setlist_form.html:4 templates/app/setlist_form.html:235
+#: templates/app/setlist_list.html:118 templates/app/setlist_list.html:187
+msgid "New Set List"
+msgstr "Nuevo repertorio"
+
+#: templates/app/setlist_form.html:252 templates/app/song_form.html:179
+#: templates/app/song_list.html:33
+msgid "Title"
+msgstr "Título"
+
+#: templates/app/setlist_form.html:257
+msgid "Date"
+msgstr "Fecha"
+
+#: templates/app/setlist_form.html:262
+msgid "Notation"
+msgstr "Notación"
+
+#: templates/app/setlist_form.html:269
+msgid "Create Set List"
+msgstr "Crear repertorio"
+
+#: templates/app/setlist_form.html:288 templates/app/song_list.html:18
+msgid "Search songs…"
+msgstr "Buscar canciones…"
+
+#: templates/app/setlist_form.html:292 templates/app/setlist_form.html:303
+#: templates/app/setlist_form.html:320 templates/app/song_list.html:35
+msgid "Key"
+msgstr "Tonalidad"
+
+#: templates/app/setlist_form.html:304
+msgid "Font"
+msgstr "Fuente"
+
+#: templates/app/setlist_form.html:305
+msgid "Break"
+msgstr "Salto"
+
+#: templates/app/setlist_form.html:325 templates/app/song_form.html:211
+msgid "Remove"
+msgstr "Quitar"
+
+#: templates/app/setlist_form.html:334
+msgid "No songs yet. Use the form above to add songs."
+msgstr ""
+"Aún no hay canciones. Usa el formulario de arriba para agregar canciones."
+
+#: templates/app/setlist_list.html:4 templates/app/setlist_list.html:115
+#: templates/base.html:709
+msgid "Set Lists"
+msgstr "Repertorios"
+
+#: templates/app/setlist_list.html:124
+msgid "Search set lists…"
+msgstr "Buscar repertorios…"
+
+#: templates/app/setlist_list.html:125
+msgid "Search"
+msgstr "Buscar"
+
+#: templates/app/setlist_list.html:127
+msgid "Clear"
+msgstr "Limpiar"
+
+#: templates/app/setlist_list.html:145
+msgid "songs"
+msgstr "canciones"
+
+#: templates/app/setlist_list.html:162
+msgid "Export"
+msgstr "Exportar"
+
+#: templates/app/setlist_list.html:166
+msgid "Share"
+msgstr "Compartir"
+
+#: templates/app/setlist_list.html:185
+msgid "No set lists yet"
+msgstr "Aún no hay repertorios"
+
+#: templates/app/setlist_list.html:186
+msgid "Create your first set list to organize songs for a performance."
+msgstr ""
+"Crea tu primer repertorio para organizar canciones para una presentación."
+
+#: templates/app/setlist_list.html:204
+msgid "Copied!"
+msgstr "¡Copiado!"
+
+#: templates/app/setlist_reader.html:12 templates/app/setlist_reader.html:19
+#, python-format
+msgid "Set list with %(count)s songs — %(date)s"
+msgstr "Repertorio con %(count)s canciones — %(date)s"
+
+#: templates/app/setlist_reader.html:645
 msgid "Back to cover"
 msgstr "Volver a la portada"
 
-#: templates/app/setlist_reader.html:643
+#: templates/app/setlist_reader.html:656
 msgid "Fit to screen"
 msgstr "Ajustar a pantalla"
 
-#: templates/app/setlist_reader.html:645
+#: templates/app/setlist_reader.html:658
 msgid "Fit"
 msgstr "Ajustar"
 
-#: templates/app/setlist_reader.html:649
+#: templates/app/setlist_reader.html:662
 msgid "Chords"
 msgstr "Acordes"
 
-#: templates/app/setlist_reader.html:674
+#: templates/app/setlist_reader.html:687
 msgid "Start"
 msgstr "Comenzar"
 
-#: templates/app/setlist_reader.html:678
+#: templates/app/setlist_reader.html:691
 msgid "No songs in this setlist yet."
 msgstr "Aún no hay canciones en este repertorio."
 
-#: templates/app/setlist_reader.html:724
+#: templates/app/setlist_reader.html:737
 msgid "Previous song"
 msgstr "Canción anterior"
 
-#: templates/app/setlist_reader.html:728
+#: templates/app/setlist_reader.html:741
 msgid "Cover page"
 msgstr "Portada"
 
-#: templates/app/setlist_reader.html:733
+#: templates/app/setlist_reader.html:746
 msgid "Song list"
 msgstr "Lista de canciones"
 
-#: templates/app/setlist_reader.html:742
+#: templates/app/setlist_reader.html:755
 msgid "Next song"
 msgstr "Siguiente canción"
+
+#: templates/app/song_form.html:4 templates/app/song_form.html:169
+msgid "Edit Song"
+msgstr "Editar canción"
+
+#: templates/app/song_form.html:4 templates/app/song_form.html:169
+#: templates/app/song_list.html:11 templates/app/song_list.html:99
+msgid "New Song"
+msgstr "Nueva canción"
+
+#: templates/app/song_form.html:191
+msgid "Original Key"
+msgstr "Tonalidad original"
+
+#: templates/app/song_form.html:198
+msgid "Lyrics"
+msgstr "Letra"
+
+#: templates/app/song_form.html:201
+msgid "Use ChordPro format: [Am]word [G]word. Chords go in square brackets."
+msgstr ""
+"Usa formato ChordPro: [Am]palabra [G]palabra. Los acordes van entre "
+"corchetes."
+
+#: templates/app/song_form.html:214
+msgid "Search tags…"
+msgstr "Buscar etiquetas…"
+
+#: templates/app/song_form.html:228
+msgid "Create Song"
+msgstr "Crear canción"
+
+#: templates/app/song_form.html:237
+msgid "Preview"
+msgstr "Vista previa"
+
+#: templates/app/song_form.html:239 templates/app/song_form.html:262
+msgid "Start typing lyrics to see a preview…"
+msgstr "Empieza a escribir la letra para ver una vista previa…"
+
+#: templates/app/song_form.html:438
+msgid "No tags found"
+msgstr "No se encontraron etiquetas"
+
+#: templates/app/song_list.html:21
+msgid "All categories"
+msgstr "Todas las categorías"
+
+#: templates/app/song_list.html:97
+msgid "No songs yet"
+msgstr "Aún no hay canciones"
+
+#: templates/app/song_list.html:98
+msgid "Create your first song to get started."
+msgstr "Crea tu primera canción para comenzar."
+
+#: templates/app/tag_form.html:4 templates/app/tag_form.html:8
+msgid "Edit Tag"
+msgstr "Editar etiqueta"
+
+#: templates/app/tag_list.html:74
+msgid "New tag"
+msgstr "Nueva etiqueta"
+
+#: templates/app/tag_list.html:109
+msgid "No tags yet"
+msgstr "Aún no hay etiquetas"
+
+#: templates/app/tag_list.html:110
+msgid "Add a tag using the form above."
+msgstr "Agrega una etiqueta usando el formulario de arriba."
+
+#: templates/base.html:678
+msgid "Menu"
+msgstr "Menú"
+
+#: templates/base.html:692
+msgid "Library"
+msgstr "Biblioteca"
+
+#: templates/base.html:706
+msgid "Performance"
+msgstr "Presentación"
+
+#: templates/base.html:720
+msgid "Log out"
+msgstr "Cerrar sesión"
+
+#: templates/registration/login.html:4 templates/registration/login.html:118
+#: templates/registration/register.html:129
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+#: templates/registration/login.html:90
+msgid "Sign in to manage your library"
+msgstr "Inicia sesión para administrar tu biblioteca"
+
+#: templates/registration/login.html:111
+#: templates/registration/register.html:108
+msgid "Username"
+msgstr "Usuario"
+
+#: templates/registration/login.html:115
+#: templates/registration/register.html:116
+msgid "Password"
+msgstr "Contraseña"
+
+#: templates/registration/login.html:124
+msgid "Don't have an account?"
+msgstr "¿No tienes una cuenta?"
+
+#: templates/registration/login.html:124 templates/registration/register.html:4
+msgid "Sign up"
+msgstr "Registrarse"
+
+#: templates/registration/register.html:87
+msgid "Create your account"
+msgstr "Crea tu cuenta"
+
+#: templates/registration/register.html:120
+msgid "Confirm password"
+msgstr "Confirmar contraseña"
+
+#: templates/registration/register.html:123
+msgid "Create account"
+msgstr "Crear cuenta"
+
+#: templates/registration/register.html:129
+msgid "Already have an account?"
+msgstr "¿Ya tienes una cuenta?"
+
+#~ msgid "No tags available."
+#~ msgstr "No hay etiquetas disponibles."
+
+#~ msgid "Create tags"
+#~ msgstr "Crear etiquetas"
+
+#~ msgid "— Select a song —"
+#~ msgstr "— Seleccionar una canción —"

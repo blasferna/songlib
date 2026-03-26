@@ -5,4 +5,4 @@ from .models import SetListSong
 class SetListSongSerializer(serializers.ModelSerializer):
     class Meta:
         model = SetListSong
-        fields = ["font_size", "page_break_after"]
+        fields = ["id", "order", "chord", "font_size", "page_break_after"]

@@ -164,3 +164,8 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+# Auth
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/songs/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
