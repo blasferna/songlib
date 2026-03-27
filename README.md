@@ -1,4 +1,4 @@
-# SongLib: My Personal Song Library
+# SongLib
 
 SongLib is a Django web application for managing song lyrics and setlists. It supports ChordPro-formatted lyrics with real-time chord transposition, multiple notation systems, and organization-based multi-tenancy so teams can collaborate on shared song libraries.
 
