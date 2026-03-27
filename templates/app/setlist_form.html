@@ -29,6 +29,7 @@
     padding: 16px;
     background: var(--border-light);
     border-radius: var(--radius);
+    flex-wrap: wrap;
 }
 
 .add-song-bar input {
@@ -43,6 +44,7 @@
 
 .song-autocomplete-wrap {
     flex: 2;
+    min-width: 0;
     position: relative;
 }
 
@@ -100,7 +102,7 @@
     font-style: italic;
 }
 
-.add-song-bar .key-input { flex: 0 0 100px; }
+.add-song-bar .key-input { flex: 0 0 80px; width: 80px; }
 
 /* Sortable song list */
 .sortable-songs {
@@ -109,7 +111,7 @@
 
 .sortable-song {
     display: grid;
-    grid-template-columns: 32px 1fr 100px 70px 70px 40px;
+    grid-template-columns: 32px 1fr 80px 40px;
     gap: 10px;
     align-items: center;
     padding: 12px 16px;
@@ -195,7 +197,7 @@
 
 .songs-header-row {
     display: grid;
-    grid-template-columns: 32px 1fr 100px 70px 70px 40px;
+    grid-template-columns: 32px 1fr 80px 40px;
     gap: 10px;
     padding: 0 16px 8px;
     font-size: 0.75rem;
@@ -216,16 +218,29 @@
 
 @media (max-width: 768px) {
     .sortable-song {
-        grid-template-columns: 28px 1fr 80px 36px;
-    }
-    .sortable-song .font-col,
-    .sortable-song .break-col,
-    .songs-header-row .font-col,
-    .songs-header-row .break-col {
-        display: none;
+        grid-template-columns: 28px 1fr 70px 36px;
     }
     .songs-header-row {
-        grid-template-columns: 28px 1fr 80px 36px;
+        grid-template-columns: 28px 1fr 70px 36px;
+    }
+    .add-song-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .song-autocomplete-wrap {
+        flex: 1;
+        width: 100%;
+    }
+    .add-song-bar .key-input {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    .add-song-bar .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .form-row {
+        grid-template-columns: 1fr !important;
     }
 }
 {% endblock %}
@@ -301,8 +316,6 @@
             <span></span>
             <span>{% trans "Song" %}</span>
             <span>{% trans "Key" %}</span>
-            <span class="font-col">{% trans "Font" %}</span>
-            <span class="break-col">{% trans "Break" %}</span>
             <span></span>
         </div>
 
@@ -318,10 +331,6 @@
                     <div class="song-item-order">#{{ sls.order }}</div>
                 </div>
                 <input type="text" value="{{ sls.chord }}" placeholder="{% trans 'Key' %}" data-field="chord" data-sls-id="{{ sls.pk }}">
-                <input type="number" value="{{ sls.font_size }}" min="8" max="36" data-field="font_size" data-sls-id="{{ sls.pk }}" class="font-col">
-                <label class="form-check break-col" style="justify-content:center">
-                    <input type="checkbox" {% if sls.page_break_after %}checked{% endif %} data-field="page_break_after" data-sls-id="{{ sls.pk }}">
-                </label>
                 <button type="button" class="remove-song" data-id="{{ sls.pk }}" title="{% trans 'Remove' %}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -499,8 +508,6 @@
                 '<div class="drag-handle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="8" y2="6.01"/><line x1="16" y1="6" x2="16" y2="6.01"/><line x1="8" y1="12" x2="8" y2="12.01"/><line x1="16" y1="12" x2="16" y2="12.01"/><line x1="8" y1="18" x2="8" y2="18.01"/><line x1="16" y1="18" x2="16" y2="18.01"/></svg></div>' +
                 '<div><div class="song-item-title">' + data.song_title + '</div><div class="song-item-order">#' + data.order + '</div></div>' +
                 '<input type="text" value="' + (data.chord || '') + '" placeholder="Key" data-field="chord" data-sls-id="' + data.id + '">' +
-                '<input type="number" value="' + data.font_size + '" min="8" max="36" data-field="font_size" data-sls-id="' + data.id + '" class="font-col">' +
-                '<label class="form-check break-col" style="justify-content:center"><input type="checkbox" data-field="page_break_after" data-sls-id="' + data.id + '"></label>' +
                 '<button type="button" class="remove-song" data-id="' + data.id + '" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
 
             container.appendChild(el);

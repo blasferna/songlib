@@ -23,6 +23,37 @@
     padding: 12px 14px; color: var(--text-muted);
     font-size: 0.85rem; font-style: italic;
 }
+
+@media (max-width: 768px) {
+    .members-table thead { display: none; }
+    .members-table tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border-light);
+    }
+    .members-table tbody td {
+        padding: 0;
+        border: none;
+        font-size: 0.88rem;
+    }
+    .members-table .col-user { flex: 1; min-width: 0; }
+    .members-table .col-role { flex-shrink: 0; }
+    .members-table .col-joined { display: none; }
+    .members-table .col-actions { flex-shrink: 0; margin-left: auto; }
+    #addMemberForm {
+        flex-direction: column !important;
+    }
+    #addMemberForm .form-group {
+        width: 100%;
+    }
+    #addMemberForm .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
 </style>
 {% endblock %}
 
@@ -64,7 +95,7 @@
 
 <!-- Members table -->
 <div class="table-wrap">
-    <table>
+    <table class="members-table">
         <thead>
             <tr>
                 <th>{% trans "User" %}</th>
@@ -76,7 +107,7 @@
         <tbody>
             {% for m in memberships %}
             <tr>
-                <td>
+                <td class="col-user">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(196,146,62,0.15); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem; flex-shrink: 0;">
                             {{ m.user.username.0|upper }}
@@ -89,13 +120,13 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="col-role">
                     <span class="badge {% if m.role == 'admin' %}badge-accent{% else %}badge-sage{% endif %}">
                         {{ m.get_role_display }}
                     </span>
                 </td>
-                <td style="color: var(--text-muted); font-size: 0.85rem;">{{ m.created_at|date:"M d, Y" }}</td>
-                <td>
+                <td class="col-joined" style="color: var(--text-muted); font-size: 0.85rem;">{{ m.created_at|date:"M d, Y" }}</td>
+                <td class="col-actions">
                     <div class="table-actions">
                         <form method="post" action="{% url 'organization_change_role' pk=organization.pk user_id=m.user.pk %}" style="display: inline;">
                             {% csrf_token %}

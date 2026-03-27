@@ -165,6 +165,45 @@ def song_delete(request, pk):
     )
 
 
+@login_required
+def song_print(request, pk):
+    song = get_object_or_404(Song, pk=pk, organization=request.active_organization)
+    include_chords = request.GET.get("chords") == "1"
+    notation = request.GET.get("notation", "english")
+    if notation not in ("english", "latin"):
+        notation = "english"
+    font_size = request.GET.get("fs", "15")
+    try:
+        font_size = max(10, min(30, int(font_size)))
+    except (ValueError, TypeError):
+        font_size = 15
+    if include_chords:
+        processed_lines = process_chordpro(
+            song.lyrics,
+            original_key=song.original_key,
+            target_key=song.original_key,
+            notation=notation,
+        )
+    else:
+        processed_lines = None
+    plain_lyrics = strip_chords(song.lyrics)
+    return render(
+        request,
+        "app/song_print.html",
+        {
+            "song": song,
+            "include_chords": include_chords,
+            "processed_lines": processed_lines,
+            "plain_lyrics": plain_lyrics,
+            "notation": notation,
+            "font_size": font_size,
+            "font_size_up": min(30, font_size + 1),
+            "font_size_down": max(10, font_size - 1),
+            "chord_font_size": max(10, font_size - 2),
+        },
+    )
+
+
 # ─── Categories ─────────────────────────────────────────────────────────────────
 
 
@@ -309,10 +348,12 @@ def setlist_list(request):
             sl.pk for sl in setlists if q_norm in _normalize_accent(sl.title)
         ]
         setlists = setlists.filter(pk__in=matching_pks)
+    paginator = Paginator(setlists, 25)
+    page_obj = paginator.get_page(request.GET.get("page"))
     return render(
         request,
         "app/setlist_list.html",
-        {"setlists": setlists, "q": q, "nav_active": "setlists"},
+        {"setlists": page_obj, "page_obj": page_obj, "q": q, "nav_active": "setlists"},
     )
 
 
@@ -573,7 +614,13 @@ def setlist_export_txt(request, setlist_id):
             content += "\n" + "=" * 50 + "\n\n"
 
     response = HttpResponse(content, content_type="text/plain; charset=utf-8")
-    response["Content-Disposition"] = f'attachment; filename="{setlist.title}.txt"'
+    from urllib.parse import quote
+    filename = f"{setlist.title}.txt"
+    ascii_filename = filename.encode("ascii", "ignore").decode("ascii")
+    response["Content-Disposition"] = (
+        f'attachment; filename="{ascii_filename}"; '
+        f"filename*=UTF-8''{quote(filename)}"
+    )
 
     return response
 

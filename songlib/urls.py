@@ -65,6 +65,7 @@ urlpatterns = [
     path("songs/create/", views.song_create, name="song_create"),
     path("songs/<int:pk>/edit/", views.song_edit, name="song_edit"),
     path("songs/<int:pk>/delete/", views.song_delete, name="song_delete"),
+    path("songs/<int:pk>/print/", views.song_print, name="song_print"),
     path("songs/search/", views.song_search_api, name="song_search_api"),
     path("users/search/", views.user_search_api, name="user_search_api"),
     # Categories

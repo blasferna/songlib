@@ -1,0 +1,176 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ song.title }} — SongLib</title>
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            margin: 0;
+            padding: 20px;
+            color: #1a1a1a;
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            font-family: "Source Sans 3", "Segoe UI", sans-serif;
+        }
+        .toolbar .group {
+            display: inline-flex;
+            border: 1px solid #d0ccc6;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .toolbar .group + .group { margin-left: 6px; }
+        .toolbar .group a,
+        .toolbar .group button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            border: none;
+            border-right: 1px solid #d0ccc6;
+            background: #fff;
+            color: #4a4540;
+            font-size: 13px;
+            font-family: inherit;
+            text-decoration: none;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+        .toolbar .group a:last-child,
+        .toolbar .group button:last-child { border-right: none; }
+        .toolbar .group a:hover,
+        .toolbar .group button:hover { background: #f5f2ed; }
+        .toolbar .group a.active {
+            background: #c4923e;
+            color: #fff;
+        }
+        .toolbar .group button.print-btn {
+            background: #2c2825;
+            color: #fff;
+        }
+        .toolbar .group button.print-btn:hover { background: #4a4540; }
+        .toolbar .group .fs-label {
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #8a8580;
+            cursor: default;
+            border-right: 1px solid #d0ccc6;
+        }
+        .toolbar .group .fs-value {
+            min-width: 34px;
+            text-align: center;
+            padding: 6px 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c2825;
+            cursor: default;
+            border-right: 1px solid #d0ccc6;
+        }
+        .print-header {
+            text-align: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+        .print-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .print-header p {
+            font-size: 13px;
+            color: #555;
+            margin: 0;
+        }
+        .lyrics {
+            line-height: 1.5;
+            white-space: pre-wrap;
+            font-family: inherit;
+            margin: 0;
+        }
+        .chord-line-wrapper {
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+        .chord-pair {
+            display: inline-block;
+            vertical-align: top;
+        }
+        .chord-annotation {
+            display: block;
+            font-weight: 700;
+            color: #b33;
+            min-height: 1.1em;
+            white-space: pre;
+        }
+        .chord-text {
+            display: block;
+            white-space: pre;
+        }
+        @media print {
+            .toolbar { display: none !important; }
+            @page { margin: 15mm; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div class="group">
+            <a href="{% url 'song_print' song.pk %}?notation={{ notation }}&fs={{ font_size }}"
+               {% if not include_chords %}class="active"{% endif %}>{% trans "Without chords" %}</a>
+            <a href="{% url 'song_print' song.pk %}?chords=1&notation={{ notation }}&fs={{ font_size }}"
+               {% if include_chords %}class="active"{% endif %}>{% trans "With chords" %}</a>
+        </div>
+        {% if include_chords %}
+        <div class="group">
+            <a href="{% url 'song_print' song.pk %}?chords=1&notation=english&fs={{ font_size }}"
+               {% if notation == "english" %}class="active"{% endif %}>{% trans "English" %} (C, D, E…)</a>
+            <a href="{% url 'song_print' song.pk %}?chords=1&notation=latin&fs={{ font_size }}"
+               {% if notation == "latin" %}class="active"{% endif %}>{% trans "Latin" %} (Do, Re, Mi…)</a>
+        </div>
+        {% endif %}
+        <div class="group">
+            <span class="fs-label">{% trans "Size" %}</span>
+            <a href="{% url 'song_print' song.pk %}?{% if include_chords %}chords=1&notation={{ notation }}&{% endif %}fs={{ font_size_down }}">−</a>
+            <span class="fs-value">{{ font_size }}</span>
+            <a href="{% url 'song_print' song.pk %}?{% if include_chords %}chords=1&notation={{ notation }}&{% endif %}fs={{ font_size_up }}">+</a>
+        </div>
+        <div class="group">
+            <button class="print-btn" onclick="window.print()">🖨 {% trans "Print" %}</button>
+        </div>
+    </div>
+
+    <div class="print-header">
+        <h1>{{ song.title }}</h1>
+        {% if song.original_key %}<p>{% trans "Key" %}: {{ song.original_key }}</p>{% endif %}
+    </div>
+
+    {% if include_chords %}
+    <div class="content-chords">
+        {% for line in processed_lines %}
+        <div class="chord-line-wrapper">
+            {% for segment in line %}
+            <span class="chord-pair">
+                <span class="chord-annotation" style="font-size: {{ chord_font_size }}px;">{% if segment.chord %}{{ segment.chord }}{% endif %}</span>
+                <span class="chord-text" style="font-size: {{ font_size }}px;">{{ segment.text }}</span>
+            </span>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <pre class="lyrics" style="font-size: {{ font_size }}px;">{{ plain_lyrics }}</pre>
+    {% endif %}
+</body>
+</html>

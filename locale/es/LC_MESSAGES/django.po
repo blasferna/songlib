@@ -772,3 +772,23 @@ msgstr "¿Ya tienes una cuenta?"
 
 #~ msgid "— Select a song —"
 #~ msgstr "— Seleccionar una canción —"
+
+#: templates/app/song_print.html
+msgid "Without chords"
+msgstr "Sin acordes"
+
+#: templates/app/song_print.html
+msgid "With chords"
+msgstr "Con acordes"
+
+#: templates/app/song_print.html
+msgid "English"
+msgstr "Inglés"
+
+#: templates/app/song_print.html
+msgid "Latin"
+msgstr "Latino"
+
+#: templates/app/song_print.html
+msgid "Size"
+msgstr "Tamaño"

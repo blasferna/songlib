@@ -81,6 +81,16 @@
     .setlist-links {
         flex-wrap: wrap;
     }
+    .setlist-meta {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .setlist-meta span {
+        font-size: 0.8rem;
+    }
+    .setlist-search form {
+        max-width: 100%;
+    }
 }
 
 .setlist-search {
@@ -178,6 +188,31 @@
     </div>
     {% endfor %}
 </div>
+
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.previous_page_number }}">‹</a>
+    {% else %}
+    <span class="disabled">‹</span>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <span class="active">{{ num }}</span>
+        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+        <a href="?{% if q %}q={{ q }}&{% endif %}page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.next_page_number }}">›</a>
+    {% else %}
+    <span class="disabled">›</span>
+    {% endif %}
+</div>
+{% endif %}
+
 {% else %}
 <div class="card">
     <div class="empty-state">
