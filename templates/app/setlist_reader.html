@@ -10,7 +10,6 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ setlist.title }}">
     <meta property="og:description" content="{% blocktrans with count=total date=setlist.date %}Set list with {{ count }} songs — {{ date }}{% endblocktrans %}">
-    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{% url 'setlist_reader' setlist.pk %}">
     <meta property="og:site_name" content="SongLib">
 
     <!-- Twitter Card -->
@@ -104,6 +103,7 @@
             flex-shrink: 0;
             line-height: 1;
             transition: var(--transition);
+            cursor: pointer;
         }
 
         .header-back:hover { color: var(--text-secondary); }
@@ -209,7 +209,6 @@
             align-items: center;
             justify-content: center;
             padding: 2rem 1.5rem 6rem;
-            animation: fadeSlideIn 0.5s ease-out;
         }
 
         .cover-card {
@@ -256,9 +255,13 @@
             gap: 0.75rem;
             padding: 0.6rem 0;
             border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
         }
 
         .cover-songs li:last-child { border-bottom: none; }
+
+        .cover-songs li:hover .cover-song-title { color: var(--text-primary); }
 
         .cover-song-num {
             font-family: 'DM Mono', monospace;
@@ -274,6 +277,7 @@
             font-size: 1rem;
             color: var(--text-secondary);
             flex: 1;
+            transition: var(--transition);
         }
 
         .cover-song-key {
@@ -300,6 +304,7 @@
             text-decoration: none;
             letter-spacing: 0.06em;
             transition: var(--transition);
+            cursor: pointer;
         }
 
         .cover-start:hover {
@@ -325,7 +330,6 @@
             width: 100%;
             margin: 0 auto;
             padding: 1rem 1rem 6rem;
-            animation: fadeSlideIn 0.45s ease-out;
         }
 
         .lyrics-plain {
@@ -383,21 +387,9 @@
             transform-origin: top left;
         }
 
-        /* ═══════ EMPTY STATE ═══════ */
-        .empty-state {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem 1rem;
-        }
-
-        .empty-state p {
-            font-family: 'Cormorant Garamond', Georgia, serif;
-            font-size: 1.3rem;
-            color: var(--text-muted);
-            font-style: italic;
-        }
+        /* ═══════ PAGES ═══════ */
+        .page { display: none; flex-direction: column; flex: 1; }
+        .page.active { display: flex; }
 
         /* ═══════ BOTTOM NAV ═══════ */
         .bottom-nav {
@@ -557,6 +549,7 @@
             color: var(--text-secondary);
             transition: var(--transition);
             border-radius: 8px;
+            cursor: pointer;
         }
 
         .drawer-list a:hover {
@@ -631,6 +624,7 @@
         @media print {
             .header, .bottom-nav, .song-drawer, .drawer-overlay { display: none !important; }
             body { background: white; color: #1a1a1a; }
+            .page { display: flex !important; }
             .lyrics-container { padding-bottom: 1rem; }
             .chord-annotation { color: #555; }
         }
@@ -641,18 +635,11 @@
     <header class="header">
         <div class="header-inner">
             <div class="header-left">
-                {% if not is_cover and current_song %}
-                <a class="header-back" href="?" aria-label="{% trans 'Back to cover' %}">‹</a>
-                <span class="header-song-title">{{ current_song.song.title }}</span>
-                {% if current_song.chord %}
-                <span class="header-song-key">{{ current_song.chord }}</span>
-                {% endif %}
-                {% else %}
-                <span class="header-song-title">{{ setlist.title }}</span>
-                {% endif %}
+                <span class="header-back" id="headerBack" onclick="goToCover()" style="display:none;" aria-label="{% trans 'Back to cover' %}">‹</span>
+                <span class="header-song-title" id="headerTitle">{{ setlist.title }}</span>
+                <span class="header-song-key" id="headerKey" style="display:none;"></span>
             </div>
-            {% if not is_cover and current_song %}
-            <div class="header-right">
+            <div class="header-right" id="headerRight" style="display:none;">
                 <button class="toggle-btn toggle-fit" id="fitToggle" onclick="toggleFit()" aria-pressed="false" title="{% trans 'Fit to screen' %}">
                     <span class="toggle-dot"></span>
                     {% trans "Fit" %}
@@ -662,65 +649,68 @@
                     {% trans "Chords" %}
                 </button>
             </div>
-            {% endif %}
         </div>
     </header>
 
-    {% if is_cover %}
-    <!-- COVER PAGE -->
-    <div class="cover">
-        <div class="cover-card">
-            <h1 class="cover-title">{{ setlist.title }}</h1>
-            <div class="cover-date">{{ setlist.date }}</div>
-            <div class="cover-divider"></div>
-            {% if song_list %}
-            <ol class="cover-songs">
-                {% for s in song_list %}
-                <li>
-                    <span class="cover-song-num">{{ s.index|add:1 }}</span>
-                    <span class="cover-song-title">{{ s.title }}</span>
-                    {% if s.chord %}<span class="cover-song-key">{{ s.chord }}</span>{% endif %}
-                </li>
-                {% endfor %}
-            </ol>
-            <a class="cover-start" href="?song=0">
-                {% trans "Start" %}
-                <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
-            </a>
-            {% else %}
-            <p style="color:var(--text-muted);font-style:italic;font-family:'Cormorant Garamond',Georgia,serif;font-size:1.2rem;">{% trans "No songs in this setlist yet." %}</p>
-            {% endif %}
+    <!-- ═══════ COVER PAGE ═══════ -->
+    <div class="page active" id="pageCover">
+        <div class="cover">
+            <div class="cover-card">
+                <h1 class="cover-title">{{ setlist.title }}</h1>
+                <div class="cover-date">{{ setlist.date }}</div>
+                <div class="cover-divider"></div>
+                {% if all_songs %}
+                <ol class="cover-songs">
+                    {% for s in all_songs %}
+                    <li onclick="goToSong({{ s.index }})">
+                        <span class="cover-song-num">{{ s.index|add:1 }}</span>
+                        <span class="cover-song-title">{{ s.title }}</span>
+                        {% if s.chord %}<span class="cover-song-key">{{ s.chord }}</span>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ol>
+                <button class="cover-start" onclick="goToSong(0)">
+                    {% trans "Start" %}
+                    <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+                </button>
+                {% else %}
+                <p style="color:var(--text-muted);font-style:italic;font-family:'Cormorant Garamond',Georgia,serif;font-size:1.2rem;">{% trans "No songs in this setlist yet." %}</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 
-    {% elif current_song %}
-    <!-- LYRICS -->
-    <main class="lyrics-container" id="lyricsContainer">
-        <div class="lyrics-plain" id="lyricsPlain">{{ plain_lyrics }}</div>
-        <div class="lyrics-chords" id="lyricsChords">
-            {% for line in processed_lines %}
-            <div class="chord-line-wrapper">
-                <div class="chord-line-content">
-                    {% for segment in line %}
-                    <span class="chord-pair">
-                        <span class="chord-annotation">{% if segment.chord %}{{ segment.chord }}{% endif %}</span>
-                        <span class="chord-text">{{ segment.text }}</span>
-                    </span>
-                    {% endfor %}
+    <!-- ═══════ SONG PAGES (all rendered, hidden by default) ═══════ -->
+    {% for s in all_songs %}
+    <div class="page" id="pageSong{{ s.index }}" data-song-index="{{ s.index }}" data-song-title="{{ s.title }}" data-song-chord="{{ s.chord|default:'' }}">
+        <main class="lyrics-container" id="lyricsContainer{{ s.index }}">
+            <div class="lyrics-plain" id="lyricsPlain{{ s.index }}">{{ s.plain_lyrics }}</div>
+            <div class="lyrics-chords" id="lyricsChords{{ s.index }}">
+                {% for line in s.processed_lines %}
+                <div class="chord-line-wrapper">
+                    <div class="chord-line-content">
+                        {% for segment in line %}
+                        <span class="chord-pair">
+                            <span class="chord-annotation">{% if segment.chord %}{{ segment.chord }}{% endif %}</span>
+                            <span class="chord-text">{{ segment.text }}</span>
+                        </span>
+                        {% endfor %}
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-    </main>
+        </main>
+    </div>
+    {% endfor %}
 
     <!-- SONG LIST DRAWER -->
     <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
     <div class="song-drawer" id="songDrawer">
         <div class="drawer-handle" onclick="closeDrawer()"><span></span></div>
-        <ul class="drawer-list">
-            {% for s in song_list %}
+        <ul class="drawer-list" id="drawerList">
+            {% for s in all_songs %}
             <li>
-                <a href="?song={{ s.index }}"{% if s.index == song_index %} class="active"{% endif %}>
+                <a onclick="goToSong({{ s.index }}); closeDrawer();" data-drawer-index="{{ s.index }}">
                     <span class="drawer-song-num">{{ s.index|add:1 }}</span>
                     <span class="drawer-song-title">{{ s.title }}</span>
                     {% if s.chord %}<span class="drawer-song-chord">{{ s.chord }}</span>{% endif %}
@@ -731,48 +721,123 @@
     </div>
 
     <!-- BOTTOM NAVIGATION -->
-    <nav class="bottom-nav" id="bottomNav">
+    <nav class="bottom-nav" id="bottomNav" style="display:none;">
         <div class="bottom-nav-inner">
-            {% if has_prev %}
-            <a class="nav-btn" href="?song={{ prev_index }}" aria-label="{% trans 'Previous song' %}">
+            <button class="nav-btn" id="navPrev" onclick="goPrev()" aria-label="{% trans 'Previous song' %}">
                 <span class="arrow"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></span>
-            </a>
-            {% else %}
-            <a class="nav-btn" href="?" aria-label="{% trans 'Cover page' %}">
-                <span class="arrow"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></span>
-            </a>
-            {% endif %}
+            </button>
 
             <button class="song-list-toggle" onclick="openDrawer()" aria-label="{% trans 'Song list' %}">
                 <span class="nav-counter">
-                    <span class="nav-counter-current">{{ song_index|add:1 }}</span>
+                    <span class="nav-counter-current" id="navCurrent">1</span>
                     <span class="nav-counter-sep">/</span>
-                    {{ total }}
+                    <span id="navTotal">{{ total }}</span>
                 </span>
             </button>
 
-            {% if has_next %}
-            <a class="nav-btn" href="?song={{ next_index }}" aria-label="{% trans 'Next song' %}">
+            <button class="nav-btn" id="navNext" onclick="goNext()" aria-label="{% trans 'Next song' %}">
                 <span class="arrow"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>
-            </a>
-            {% else %}
-            <span class="nav-btn disabled" aria-hidden="true">
-                <span class="arrow"><svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg></span>
-            </span>
-            {% endif %}
+            </button>
         </div>
     </nav>
-    {% endif %}
 
     <script>
+        var TOTAL = {{ total }};
+        var SETLIST_TITLE = "{{ setlist.title|escapejs }}";
+        var currentIndex = -1; // -1 = cover
+
+        function goToSong(index) {
+            if (index < 0 || index >= TOTAL) return;
+            showPage(index);
+        }
+
+        function goToCover() {
+            showPage(-1);
+        }
+
+        function goPrev() {
+            if (currentIndex <= 0) {
+                goToCover();
+            } else {
+                goToSong(currentIndex - 1);
+            }
+        }
+
+        function goNext() {
+            if (currentIndex < TOTAL - 1) {
+                goToSong(currentIndex + 1);
+            }
+        }
+
+        function showPage(index) {
+            // Clear fit from previous page
+            if (currentIndex >= 0) clearFitForSong(currentIndex);
+
+            // Deactivate all pages
+            var pages = document.querySelectorAll('.page');
+            for (var i = 0; i < pages.length; i++) {
+                pages[i].classList.remove('active');
+            }
+
+            currentIndex = index;
+
+            if (index === -1) {
+                // Cover page
+                document.getElementById('pageCover').classList.add('active');
+                document.getElementById('headerBack').style.display = 'none';
+                document.getElementById('headerTitle').textContent = SETLIST_TITLE;
+                document.getElementById('headerKey').style.display = 'none';
+                document.getElementById('headerRight').style.display = 'none';
+                document.getElementById('bottomNav').style.display = 'none';
+            } else {
+                // Song page
+                var page = document.getElementById('pageSong' + index);
+                page.classList.add('active');
+
+                var title = page.getAttribute('data-song-title');
+                var chord = page.getAttribute('data-song-chord');
+
+                document.getElementById('headerBack').style.display = '';
+                document.getElementById('headerTitle').textContent = title;
+                if (chord) {
+                    document.getElementById('headerKey').textContent = chord;
+                    document.getElementById('headerKey').style.display = '';
+                } else {
+                    document.getElementById('headerKey').style.display = 'none';
+                }
+                document.getElementById('headerRight').style.display = '';
+                document.getElementById('bottomNav').style.display = '';
+
+                // Update nav counter
+                document.getElementById('navCurrent').textContent = index + 1;
+
+                // Update prev/next state
+                document.getElementById('navPrev').classList.remove('disabled');
+                document.getElementById('navNext').classList.toggle('disabled', index >= TOTAL - 1);
+
+                // Update drawer active state
+                var links = document.querySelectorAll('#drawerList a');
+                for (var i = 0; i < links.length; i++) {
+                    links[i].classList.toggle('active', parseInt(links[i].getAttribute('data-drawer-index')) === index);
+                }
+
+                // Restore chord/fit state for this song
+                restoreToggles();
+            }
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
         /* ═══════ Chord toggle ═══════ */
         function toggleChords() {
             var btn = document.getElementById('chordToggle');
-            if (!btn) return;
-            var plain = document.getElementById('lyricsPlain');
-            var chords = document.getElementById('lyricsChords');
-            var isActive = btn.classList.toggle('active');
+            if (!btn || currentIndex < 0) return;
+            var plain = document.getElementById('lyricsPlain' + currentIndex);
+            var chords = document.getElementById('lyricsChords' + currentIndex);
+            if (!plain || !chords) return;
 
+            var isActive = btn.classList.toggle('active');
             btn.setAttribute('aria-pressed', isActive);
             plain.classList.toggle('hidden', isActive);
             chords.classList.toggle('visible', isActive);
@@ -780,14 +845,25 @@
             if (document.body.classList.contains('fit-mode')) applyFit();
         }
 
-        if (sessionStorage.getItem('showChords') === '1') {
-            toggleChords();
+        function applyChordsState() {
+            if (currentIndex < 0) return;
+            var show = sessionStorage.getItem('showChords') === '1';
+            var btn = document.getElementById('chordToggle');
+            var plain = document.getElementById('lyricsPlain' + currentIndex);
+            var chords = document.getElementById('lyricsChords' + currentIndex);
+            if (!btn || !plain || !chords) return;
+
+            btn.classList.toggle('active', show);
+            btn.setAttribute('aria-pressed', show);
+            plain.classList.toggle('hidden', show);
+            chords.classList.toggle('visible', show);
         }
 
         /* ═══════ Fit-to-screen ═══════ */
         function getVisibleLyrics() {
-            var plain = document.getElementById('lyricsPlain');
-            var chords = document.getElementById('lyricsChords');
+            if (currentIndex < 0) return null;
+            var plain = document.getElementById('lyricsPlain' + currentIndex);
+            var chords = document.getElementById('lyricsChords' + currentIndex);
             if (!plain || !chords) return null;
             return chords.classList.contains('visible') ? chords : plain;
         }
@@ -796,10 +872,9 @@
             var el = getVisibleLyrics();
             if (!el) return;
 
-            // Reset any previous scaling
             el.style.transform = '';
             el.style.width = '';
-            var container = document.getElementById('lyricsContainer');
+            var container = document.getElementById('lyricsContainer' + currentIndex);
             if (!container) return;
             container.style.height = '';
             container.style.overflow = '';
@@ -829,13 +904,20 @@
             }
         }
 
-        function clearFit() {
-            ['lyricsPlain', 'lyricsChords'].forEach(function(id) {
-                var el = document.getElementById(id);
+        function clearFitForSong(idx) {
+            var ids = ['lyricsPlain' + idx, 'lyricsChords' + idx];
+            for (var j = 0; j < ids.length; j++) {
+                var el = document.getElementById(ids[j]);
                 if (el) { el.style.transform = ''; el.style.width = ''; }
-            });
-            var c = document.getElementById('lyricsContainer');
+            }
+            var c = document.getElementById('lyricsContainer' + idx);
             if (c) { c.style.height = ''; c.style.overflow = ''; }
+        }
+
+        function clearFit() {
+            for (var i = 0; i < TOTAL; i++) {
+                clearFitForSong(i);
+            }
         }
 
         function toggleFit() {
@@ -853,8 +935,19 @@
             }
         }
 
-        if (sessionStorage.getItem('fitMode') === '1') {
-            toggleFit();
+        function applyFitState() {
+            var fit = sessionStorage.getItem('fitMode') === '1';
+            var btn = document.getElementById('fitToggle');
+            if (!btn) return;
+            btn.classList.toggle('active', fit);
+            btn.setAttribute('aria-pressed', fit);
+            document.body.classList.toggle('fit-mode', fit);
+            if (fit && currentIndex >= 0) applyFit();
+        }
+
+        function restoreToggles() {
+            applyChordsState();
+            applyFitState();
         }
 
         window.addEventListener('resize', function() {
@@ -867,7 +960,7 @@
             var o = document.getElementById('drawerOverlay');
             if (d) d.classList.add('open');
             if (o) o.classList.add('visible');
-            var active = document.querySelector('.drawer-list a.active');
+            var active = document.querySelector('#drawerList a.active');
             if (active) setTimeout(function() { active.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 100);
         }
 
@@ -881,13 +974,12 @@
         /* ═══════ Keyboard navigation ═══════ */
         document.addEventListener('keydown', function(e) {
             if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                var prev = document.querySelector('.nav-btn[href*="song={{ prev_index }}"]');
-                if (!prev) prev = document.querySelector('.nav-btn[href="?"]');
-                if (prev) { e.preventDefault(); prev.click(); }
+                e.preventDefault();
+                goPrev();
             }
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                var next = document.querySelector('.nav-btn[href*="song={{ next_index }}"]');
-                if (next) { e.preventDefault(); next.click(); }
+                e.preventDefault();
+                goNext();
             }
             if (e.key === 'c' || e.key === 'C') toggleChords();
             if (e.key === 'f' || e.key === 'F') toggleFit();
@@ -906,12 +998,9 @@
             var dy = e.changedTouches[0].screenY - touchStartY;
             if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
                 if (dx > 0) {
-                    var prev = document.querySelector('.nav-btn[href*="song={{ prev_index }}"]');
-                    if (!prev) prev = document.querySelector('.nav-btn[href="?"]');
-                    if (prev) prev.click();
+                    goPrev();
                 } else {
-                    var next = document.querySelector('.nav-btn[href*="song={{ next_index }}"]');
-                    if (next) next.click();
+                    goNext();
                 }
             }
         }, { passive: true });

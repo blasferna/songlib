@@ -579,72 +579,36 @@ def setlist_export_txt(request, setlist_id):
 
 
 def setlist_reader(request, setlist_id):
-    """Public reader page — one song at a time, with optional chord toggle."""
+    """Public reader page — single-page with all songs for offline sharing."""
     setlist = get_object_or_404(SetList, id=setlist_id)
     songs = list(setlist.songs.select_related("song").order_by("order"))
     total = len(songs)
 
-    # Build song list for navigation (always needed)
-    song_list = [
-        {"index": i, "title": s.song.title, "chord": s.chord}
-        for i, s in enumerate(songs)
-    ]
-
-    base_ctx = {
-        "setlist": setlist,
-        "total": total,
-        "song_list": song_list,
-    }
-
-    if total == 0:
-        return render(
-            request,
-            "app/setlist_reader.html",
-            {**base_ctx, "current_song": None, "is_cover": True},
+    # Build full song data for every song (all rendered at once for offline use)
+    all_songs = []
+    for i, s in enumerate(songs):
+        processed_lines = process_chordpro(
+            s.song.lyrics,
+            original_key=s.song.original_key,
+            target_key=s.chord,
+            notation=setlist.chord_notation,
         )
-
-    # Cover page when no ?song param or ?song=cover
-    song_param = request.GET.get("song", "cover")
-    if song_param == "cover":
-        return render(
-            request,
-            "app/setlist_reader.html",
-            {**base_ctx, "current_song": None, "is_cover": True},
-        )
-
-    # Song page
-    try:
-        song_index = int(song_param)
-    except (ValueError, TypeError):
-        song_index = 0
-    song_index = max(0, min(song_index, total - 1))
-
-    current = songs[song_index]
-
-    # Process chords: transpose from original_key → setlist entry chord, in setlist notation
-    processed_lines = process_chordpro(
-        current.song.lyrics,
-        original_key=current.song.original_key,
-        target_key=current.chord,
-        notation=setlist.chord_notation,
-    )
-
-    plain_lyrics = strip_chords(current.song.lyrics)
+        plain_lyrics = strip_chords(s.song.lyrics)
+        all_songs.append({
+            "index": i,
+            "title": s.song.title,
+            "chord": s.chord,
+            "processed_lines": processed_lines,
+            "plain_lyrics": plain_lyrics,
+        })
 
     return render(
         request,
         "app/setlist_reader.html",
         {
-            **base_ctx,
-            "is_cover": False,
-            "current_song": current,
-            "processed_lines": processed_lines,
-            "plain_lyrics": plain_lyrics,
-            "song_index": song_index,
-            "has_prev": song_index > 0,
-            "has_next": song_index < total - 1,
-            "prev_index": song_index - 1,
-            "next_index": song_index + 1,
+            "setlist": setlist,
+            "total": total,
+            "all_songs": all_songs,
         },
     )
 
