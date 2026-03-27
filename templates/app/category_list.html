@@ -34,7 +34,7 @@
         <thead>
             <tr>
                 <th>{% trans "Name" %}</th>
-                <th>{% trans "Songs" %}</th>
+                <th class="desktop-only">{% trans "Songs" %}</th>
                 <th style="text-align:right">{% trans "Actions" %}</th>
             </tr>
         </thead>
@@ -42,7 +42,7 @@
             {% for cat in categories %}
             <tr>
                 <td><strong>{{ cat.name }}</strong></td>
-                <td><span class="badge badge-muted">{{ cat.song_count }}</span></td>
+                <td class="desktop-only"><span class="badge badge-muted">{{ cat.song_count }}</span></td>
                 <td>
                     <div class="table-actions">
                         <a href="{% url 'category_edit' cat.pk %}" class="btn btn-icon btn-sm" title="{% trans 'Edit' %}">

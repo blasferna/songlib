@@ -31,9 +31,9 @@
         <thead>
             <tr>
                 <th>{% trans "Title" %}</th>
-                <th>{% trans "Category" %}</th>
-                <th>{% trans "Key" %}</th>
-                <th>{% trans "Tags" %}</th>
+                <th class="desktop-only">{% trans "Category" %}</th>
+                <th class="desktop-only">{% trans "Key" %}</th>
+                <th class="desktop-only">{% trans "Tags" %}</th>
                 <th style="text-align:right">{% trans "Actions" %}</th>
             </tr>
         </thead>
@@ -41,9 +41,9 @@
             {% for song in page_obj %}
             <tr>
                 <td><strong>{{ song.title }}</strong></td>
-                <td><span class="badge badge-accent">{{ song.category.name }}</span></td>
-                <td style="font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--text-muted)">{{ song.original_key|default:"—" }}</td>
-                <td>
+                <td class="desktop-only"><span class="badge badge-accent">{{ song.category.name }}</span></td>
+                <td class="desktop-only" style="font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--text-muted)">{{ song.original_key|default:"—" }}</td>
+                <td class="desktop-only">
                     <div class="tags-list">
                         {% for tag in song.tags.all %}
                         <span class="badge badge-sage">{{ tag.name }}</span>

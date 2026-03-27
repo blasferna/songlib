@@ -827,8 +827,17 @@ select.form-control {
   margin-bottom: 20px;
 }
 
+/* ─── Display utilities ─── */
+/* Visible on desktop, hidden on mobile (≤768px) */
+.desktop-only { }
+
+/* Hidden on desktop, visible on mobile (≤768px) */
+.mobile-only { display: none !important; }
+
 /* ─── Responsive ─── */
 @media (max-width: 768px) {
+  .desktop-only { display: none !important; }
+  .mobile-only  { display: revert !important; }
   .sidebar {
     transform: translateX(-100%);
   }
