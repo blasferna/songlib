@@ -2,7 +2,27 @@
 
 ## Description
 
-SongLib is a personal Django web application designed to help me manage my song lyrics and setlists. The application allows me to store lyrics, categorize songs, and create and manage setlists for performances. It provides a straightforward Django admin interface for managing song lyrics and setlists. Features include tag-based song categorization, song ordering within setlists, and printable setlist views. 
+SongLib is a Django web application for managing song lyrics and setlists. It supports ChordPro-formatted lyrics with real-time chord transposition, multiple notation systems, and organization-based multi-tenancy so teams can collaborate on shared song libraries.
+
+## Features
+
+- **ChordPro lyrics** — Write lyrics with inline chords (`[Am]Amazing [G]grace`) and render them with separated chord/lyric lines.
+- **Chord transposition** — Transpose songs to any key on the fly; supports both English (C, D, E…) and Latin (Do, Re, Mi…) notation.
+- **Setlist management** — Create setlists with drag-and-drop song ordering, per-song key override, adjustable font size, and page-break control.
+- **Setlist reader** — A public, offline-friendly single-page view for sharing setlists with band members.
+- **Setlist export** — Export setlists as plain-text `.txt` files, with or without chords.
+- **Printable setlist views** — Print-ready layouts with configurable page sizes (A4, Letter, Legal).
+- **Categories & tags** — Organize songs by category and apply multiple tags for flexible filtering.
+- **Multi-organization support** — Create multiple organizations with admin/member roles; switch between them seamlessly.
+- **User registration & authentication** — Self-service sign-up with automatic personal organization creation.
+- **Docker deployment** — Ship as a single container image with PostgreSQL support.
+
+## Screenshots
+
+| | | |
+|:---:|:---:|:---:|
+| ![Screenshot 1](screenshots/screenshot_1.png) | ![Screenshot 2](screenshots/screenshot_2.png) | ![Screenshot 3](screenshots/screenshot_3.png) |
+| ![Screenshot 4](screenshots/screenshot_4.png) | ![Screenshot 5](screenshots/screenshot_5.png) | ![Screenshot 6](screenshots/screenshot_6.png) |
 
 ## How to Run SongLib
 
