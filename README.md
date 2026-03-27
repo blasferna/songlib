@@ -16,11 +16,12 @@ SongLib is a Django web application for managing song lyrics and setlists. It su
 - **Docker deployment** — Ship as a single container image with PostgreSQL support.
 
 ## Screenshots
+<img width="1309" height="731" alt="06" src="https://github.com/user-attachments/assets/517e672f-df14-4649-bbb8-3cf21fabb976" />
 
 | | | |
 |:---:|:---:|:---:|
-| ![Screenshot 1](screenshots/screenshot_1.png) | ![Screenshot 2](screenshots/screenshot_2.png) | ![Screenshot 3](screenshots/screenshot_3.png) |
-| ![Screenshot 4](screenshots/screenshot_4.png) | ![Screenshot 5](screenshots/screenshot_5.png) | ![Screenshot 6](screenshots/screenshot_6.png) |
+| <img width="300" height="748" alt="05" src="https://github.com/user-attachments/assets/d5beb774-6fae-4282-ac0e-43b09a4ff6a1" /> |<img width="300" alt="01" src="https://github.com/user-attachments/assets/376dca4d-13f2-4fb3-98c0-15a0db64375b" />  |  <img width="300" alt="02" src="https://github.com/user-attachments/assets/2e288afa-0b32-4934-8ce8-cf0c393007c2" /> |
+| <img width="300" alt="03" src="https://github.com/user-attachments/assets/c1d22c4a-2d6a-43f1-acac-ffc15da0b42c" />  | <img width="300" alt="04" src="https://github.com/user-attachments/assets/eca00c7b-4ca1-4aa0-a8ba-7702a56db51d" /> | <img width="300" alt="07" src="https://github.com/user-attachments/assets/a3bfc9e7-0d11-4386-9489-37fe1957aac6" />|
 
 ## How to Run SongLib
 
