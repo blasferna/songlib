@@ -22,39 +22,20 @@
     min-height: 300px;
     overflow: auto;
     max-height: 600px;
+    /* Chord rendering overrides */
+    --chord-font-family: 'DM Mono', monospace;
+    --chord-font-size: 0.82rem;
+    --chord-font-weight: 600;
+    --chord-color: var(--accent);
+    --chord-line-height: 1.4;
+    --text-font-family: 'DM Mono', monospace;
+    --text-font-size: 0.85rem;
+    --text-line-height: 1.55;
+    --text-color: var(--text-primary);
 }
 
-.lyrics-preview .chord-line-wrapper {
-    margin-bottom: 0.3rem;
-}
-
-.lyrics-preview .chord-line-content {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-}
-
-.lyrics-preview .chord-pair {
-    display: inline-flex;
-    flex-direction: column;
-}
-
-.lyrics-preview .chord-annotation {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--accent);
-    display: block;
-    line-height: 1.4;
-    min-height: 1.2em;
-}
-
-.lyrics-preview .chord-text {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.85rem;
-    line-height: 1.55;
-    color: var(--text-primary);
-}
+/* Chord rendering — shared styles */
+{% include "app/includes/_chord_styles.css" %}
 
 .lyrics-preview .empty-preview {
     color: var(--text-muted);
@@ -159,59 +140,15 @@
         return div.innerHTML;
     }
 
+    {% include "app/includes/_chordpro_parser.js" %}
+
     function renderPreview() {
         var text = textarea.value;
         if (!text.trim()) {
             preview.innerHTML = '<span class="empty-preview">{% trans "Start typing lyrics to see a preview…" %}</span>';
             return;
         }
-        var lines = text.split('\n');
-        var html = '';
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            // Parse ChordPro: split into segments of {chord, text}
-            var segments = [];
-            var regex = /\[([^\]]+)\]/g;
-            var lastIndex = 0;
-            var match;
-            while ((match = regex.exec(line)) !== null) {
-                // Text before this chord (belongs to previous segment or is plain text)
-                if (match.index > lastIndex) {
-                    var beforeText = line.substring(lastIndex, match.index);
-                    if (segments.length > 0) {
-                        segments[segments.length - 1].text += beforeText;
-                    } else {
-                        segments.push({chord: '', text: beforeText});
-                    }
-                }
-                segments.push({chord: match[1], text: ''});
-                lastIndex = regex.lastIndex;
-            }
-            // Remaining text after last chord
-            if (lastIndex < line.length) {
-                var remaining = line.substring(lastIndex);
-                if (segments.length > 0) {
-                    segments[segments.length - 1].text += remaining;
-                } else {
-                    segments.push({chord: '', text: remaining});
-                }
-            }
-            // Empty line
-            if (segments.length === 0) {
-                segments.push({chord: '', text: '\u00a0'});
-            }
-
-            html += '<div class="chord-line-wrapper"><div class="chord-line-content">';
-            for (var j = 0; j < segments.length; j++) {
-                var s = segments[j];
-                html += '<span class="chord-pair">';
-                html += '<span class="chord-annotation">' + (s.chord ? escapeHtml(s.chord) : '') + '</span>';
-                html += '<span class="chord-text">' + escapeHtml(s.text || '\u00a0') + '</span>';
-                html += '</span>';
-            }
-            html += '</div></div>';
-        }
-        preview.innerHTML = html;
+        preview.innerHTML = renderChordProHtml(text);
     }
 
     textarea.addEventListener('input', renderPreview);

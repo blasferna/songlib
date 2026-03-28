@@ -88,35 +88,6 @@
     .setlist-meta span {
         font-size: 0.8rem;
     }
-    .setlist-search form {
-        max-width: 100%;
-    }
-}
-
-.setlist-search {
-    margin-bottom: 20px;
-}
-
-.setlist-search form {
-    display: flex;
-    gap: 8px;
-    max-width: 480px;
-}
-
-.setlist-search input[type="text"] {
-    flex: 1;
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: .95rem;
-    background: var(--surface);
-    color: var(--text-primary);
-    transition: border var(--transition);
-}
-
-.setlist-search input[type="text"]:focus {
-    outline: none;
-    border-color: var(--accent);
 }
 {% endblock %}
 
@@ -129,15 +100,17 @@
     </a>
 </div>
 
-<div class="setlist-search">
-    <form method="get" action="{% url 'setlist_list' %}">
-        <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans "Search set lists…" %}">
-        <button type="submit" class="btn btn-outline">{% trans "Search" %}</button>
+<form class="search-bar" method="get" action="{% url 'setlist_list' %}">
+    <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" name="q" value="{{ request.GET.q|default:'' }}" placeholder="{% trans 'Search set lists…' %}" enterkeyhint="search">
         {% if request.GET.q %}
-        <a href="{% url 'setlist_list' %}" class="btn btn-secondary">{% trans "Clear" %}</a>
+        <a href="{% url 'setlist_list' %}" class="search-clear-btn" title="{% trans 'Clear' %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </a>
         {% endif %}
-    </form>
-</div>
+    </div>
+</form>
 
 {% if setlists %}
 <div class="setlist-grid">

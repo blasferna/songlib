@@ -99,24 +99,19 @@
             font-family: inherit;
             margin: 0;
         }
+        /* Chord rendering — shared styles with print overrides */
+        {% include "app/includes/_chord_styles.css" %}
         .chord-line-wrapper {
+            --wrapper-margin-bottom: 2px;
             line-height: 1.2;
-            margin-bottom: 2px;
-        }
-        .chord-pair {
-            display: inline-block;
-            vertical-align: top;
         }
         .chord-annotation {
-            display: block;
-            font-weight: 700;
-            color: #b33;
-            min-height: 1.1em;
-            white-space: pre;
+            --chord-font-weight: 700;
+            --chord-color: #b33;
+            --chord-line-height: 1.2;
         }
         .chord-text {
-            display: block;
-            white-space: pre;
+            --text-line-height: 1.45;
         }
         @media print {
             .toolbar { display: none !important; }
@@ -158,16 +153,7 @@
 
     {% if include_chords %}
     <div class="content-chords">
-        {% for line in processed_lines %}
-        <div class="chord-line-wrapper">
-            {% for segment in line %}
-            <span class="chord-pair">
-                <span class="chord-annotation" style="font-size: {{ chord_font_size }}px;">{% if segment.chord %}{{ segment.chord }}{% endif %}</span>
-                <span class="chord-text" style="font-size: {{ font_size }}px;">{{ segment.text }}</span>
-            </span>
-            {% endfor %}
-        </div>
-        {% endfor %}
+        {% include "app/includes/_chord_lines.html" with lines=processed_lines chord_font_size=chord_font_size text_font_size=font_size %}
     </div>
     {% else %}
     <pre class="lyrics" style="font-size: {{ font_size }}px;">{{ plain_lyrics }}</pre>

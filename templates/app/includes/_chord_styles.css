@@ -1,0 +1,44 @@
+/* Shared chord rendering CSS.
+   Customize with CSS custom properties:
+     --chord-font-family, --chord-font-size, --chord-font-weight,
+     --chord-color, --chord-line-height, --chord-letter-spacing,
+     --text-font-family, --text-font-size, --text-line-height,
+     --text-color, --wrapper-margin-bottom
+*/
+.chord-line-wrapper {
+    margin-bottom: var(--wrapper-margin-bottom, 0.3rem);
+}
+
+.chord-line-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.chord-pair {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.chord-annotation {
+    display: block;
+    font-family: var(--chord-font-family, inherit);
+    font-size: var(--chord-font-size, 0.82rem);
+    font-weight: var(--chord-font-weight, 700);
+    color: var(--chord-color, #b33);
+    line-height: var(--chord-line-height, 1.4);
+    letter-spacing: var(--chord-letter-spacing, 0);
+    min-height: 1.2em;
+    white-space: pre;
+}
+
+.chord-text {
+    display: block;
+    font-family: var(--text-font-family, inherit);
+    font-size: var(--text-font-size, inherit);
+    line-height: var(--text-line-height, 1.55);
+    min-height: 1.55em;
+    color: var(--text-color, inherit);
+    white-space: pre;
+}

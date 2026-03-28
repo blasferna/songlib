@@ -1,0 +1,9 @@
+{% comment %}
+Shared chord lines renderer.
+Optional: chord_font_size, text_font_size — pixel sizes for inline style overrides.
+Expects: `lines` — list of lines from process_chordpro(), each a list of segments {chord, text}.
+{% endcomment %}{% for line in lines %}
+<div class="chord-line-wrapper">
+<div class="chord-line-content">{% for segment in line %}<span class="chord-pair"><span class="chord-annotation"{% if chord_font_size %} style="font-size: {{ chord_font_size }}px;"{% endif %}>{% if segment.chord %}{{ segment.chord }}{% endif %}</span><span class="chord-text"{% if text_font_size %} style="font-size: {{ text_font_size }}px;"{% endif %}>{{ segment.text }}</span></span>{% endfor %}</div>
+</div>
+{% endfor %}

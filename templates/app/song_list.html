@@ -15,7 +15,12 @@
 <form class="search-bar" method="get">
     <div class="search-input-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" name="q" value="{{ q }}" placeholder="{% trans 'Search songs…' %}">
+        <input type="search" name="q" value="{{ q }}" placeholder="{% trans 'Search songs…' %}" enterkeyhint="search">
+        {% if q %}
+        <a href="{% url 'song_list' %}" class="search-clear-btn" title="{% trans 'Clear' %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </a>
+        {% endif %}
     </div>
     <select name="category" class="form-control" style="width:auto;min-width:160px" onchange="this.form.submit()">
         <option value="">{% trans "All categories" %}</option>

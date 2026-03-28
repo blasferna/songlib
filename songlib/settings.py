@@ -43,6 +43,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://*.aguara.app",
     "https://*.kaigue.com",
     "https://*.127.0.0.1",
+    "https://*.localhost:8000",
 ]
 
 # Application definition

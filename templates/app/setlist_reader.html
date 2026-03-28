@@ -346,33 +346,19 @@
 
         .chord-line-wrapper { margin-bottom: 0.3rem; }
 
-        .chord-line-content {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-end;
-        }
-
-        .chord-pair {
-            display: inline-flex;
-            flex-direction: column;
-        }
-
+        /* Chord rendering — shared styles with reader overrides */
+        {% include "app/includes/_chord_styles.css" %}
         .chord-annotation {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.82rem;
-            font-weight: 500;
-            color: var(--chord-color);
-            display: block;
-            line-height: 1.4;
-            min-height: 1.2em;
-            letter-spacing: 0.02em;
+            --chord-font-family: 'DM Mono', monospace;
+            --chord-font-size: 0.82rem;
+            --chord-font-weight: 500;
+            --chord-line-height: 1.4;
+            --chord-letter-spacing: 0.02em;
         }
-
         .chord-text {
-            font-family: 'Lora', Georgia, serif;
-            font-size: 1.15rem;
-            line-height: 1.55;
-            color: var(--text-primary);
+            --text-font-family: 'Lora', Georgia, serif;
+            --text-font-size: 1.15rem;
+            --text-line-height: 1.55;
         }
 
         /* ═══════ FIT-TO-SCREEN ═══════ */
@@ -686,18 +672,7 @@
         <main class="lyrics-container" id="lyricsContainer{{ s.index }}">
             <div class="lyrics-plain" id="lyricsPlain{{ s.index }}">{{ s.plain_lyrics }}</div>
             <div class="lyrics-chords" id="lyricsChords{{ s.index }}">
-                {% for line in s.processed_lines %}
-                <div class="chord-line-wrapper">
-                    <div class="chord-line-content">
-                        {% for segment in line %}
-                        <span class="chord-pair">
-                            <span class="chord-annotation">{% if segment.chord %}{{ segment.chord }}{% endif %}</span>
-                            <span class="chord-text">{{ segment.text }}</span>
-                        </span>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endfor %}
+                {% include "app/includes/_chord_lines.html" with lines=s.processed_lines %}
             </div>
         </main>
     </div>

@@ -8,6 +8,11 @@
     display: flex;
     flex-direction: column;
     gap: 28px;
+    min-width: 0;
+}
+
+.form-row-setlist {
+    grid-template-columns: 2fr 1fr 1fr;
 }
 
 /* Song management section */
@@ -219,9 +224,13 @@
 @media (max-width: 768px) {
     .sortable-song {
         grid-template-columns: 28px 1fr 70px 36px;
+        gap: 6px;
+        padding: 12px 10px;
     }
     .songs-header-row {
         grid-template-columns: 28px 1fr 70px 36px;
+        gap: 6px;
+        padding: 0 10px 8px;
     }
     .add-song-bar {
         flex-direction: column;
@@ -239,8 +248,17 @@
         width: 100%;
         justify-content: center;
     }
+    .form-row-setlist {
+        grid-template-columns: 1fr !important;
+    }
     .form-row {
         grid-template-columns: 1fr !important;
+    }
+    .card-body {
+        padding: 16px;
+    }
+    .sortable-songs {
+        overflow-x: hidden;
     }
 }
 {% endblock %}
@@ -262,7 +280,7 @@
         <div class="card-body">
             <form method="post" id="setlistForm">
                 {% csrf_token %}
-                <div class="form-row" style="grid-template-columns: 2fr 1fr 1fr;">
+                <div class="form-row form-row-setlist">
                     <div class="form-group">
                         <label for="id_title">{% trans "Title" %}</label>
                         {{ form.title }}

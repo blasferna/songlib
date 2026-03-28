@@ -103,6 +103,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .sidebar-nav a {
@@ -580,7 +582,7 @@ select.form-control {
   min-width: 200px;
 }
 
-.search-input-wrap svg {
+.search-input-wrap > svg {
   position: absolute;
   left: 12px;
   top: 50%;
@@ -607,6 +609,45 @@ select.form-control {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(196, 146, 62, 0.12);
+}
+
+.search-input-wrap input[type="search"]::-webkit-search-cancel-button,
+.search-input-wrap input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: 50%;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.search-clear-btn svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+.search-clear-btn:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+.search-input-wrap:has(.search-clear-btn) input {
+  padding-right: 36px;
 }
 
 /* ─── Pagination ─── */
