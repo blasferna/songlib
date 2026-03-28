@@ -9,6 +9,8 @@
     flex-direction: column;
     gap: 28px;
     min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .form-row-setlist {
@@ -112,6 +114,8 @@
 /* Sortable song list */
 .sortable-songs {
     min-height: 40px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .sortable-song {
@@ -129,6 +133,11 @@
 }
 
 .sortable-song:active { cursor: grabbing; }
+
+.sortable-song > div:nth-child(2) {
+    min-width: 0;
+    overflow: hidden;
+}
 
 .sortable-song.sortable-ghost {
     opacity: 0.4;
@@ -155,6 +164,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
 }
 
 .song-item-order {

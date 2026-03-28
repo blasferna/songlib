@@ -43,6 +43,22 @@
     font-style: italic;
 }
 
+.song-form-grid {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.song-form-grid > div {
+    min-width: 0;
+}
+
+.lyrics-preview {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    word-break: break-word;
+}
+
 @media (max-width: 900px) {
     .song-form-grid { grid-template-columns: 1fr; }
 }
