@@ -67,6 +67,12 @@
 {% block content %}
 <div class="page-header">
     <h2>{% if song %}{% trans "Edit Song" %}{% else %}{% trans "New Song" %}{% endif %}</h2>
+    {% if song %}
+    <div style="display:flex;gap:6px">
+        <a href="{% url 'song_reader' song.pk %}" class="btn btn-outline btn-sm" target="_blank">{% trans "Present" %}</a>
+        <a href="{% url 'song_print' song.pk %}" class="btn btn-outline btn-sm" target="_blank">{% trans "Print" %}</a>
+    </div>
+    {% endif %}
 </div>
 
 <form method="post">

@@ -280,6 +280,7 @@
     <div style="display:flex;gap:6px">
         <a href="{% url 'setlist_detail' setlist.pk %}" class="btn btn-outline btn-sm">{% trans "Print" %}</a>
         <a href="{% url 'setlist_reader' setlist.pk %}" class="btn btn-outline btn-sm">{% trans "Reader" %}</a>
+        <a href="{% url 'setlist_reader' setlist.pk %}?present=1" class="btn btn-outline btn-sm">{% trans "Present" %}</a>
     </div>
     {% endif %}
 </div>

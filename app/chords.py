@@ -224,7 +224,7 @@ def parse_chordpro(text):
         return []
 
     result = []
-    for line in text.split("\n"):
+    for line in text.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
         segments = []
         pos = 0
         for match in _CHORD_RE.finditer(line):
@@ -282,3 +282,67 @@ def process_chordpro(text, original_key="", target_key="", notation="english"):
                 segment["chord"] = chord
 
     return lines
+
+
+def _is_blank_chord_line(line):
+    for segment in line:
+        if segment.get("chord"):
+            return False
+        if (segment.get("text") or "").strip():
+            return False
+    return True
+
+
+def _group_into_stanzas(items, is_blank):
+    """Split a sequence into stanzas separated by blank items."""
+    stanzas = []
+    current = []
+    for item in items:
+        if is_blank(item):
+            if current:
+                stanzas.append(current)
+                current = []
+        else:
+            current.append(item)
+    if current:
+        stanzas.append(current)
+    return stanzas
+
+
+def _chunk_stanzas(stanzas, max_lines):
+    """Split long stanzas into slide-sized chunks. None keeps whole stanzas."""
+    if not max_lines:
+        return stanzas
+    slides = []
+    for stanza in stanzas:
+        for i in range(0, len(stanza), max_lines):
+            slides.append(stanza[i : i + max_lines])
+    return slides
+
+
+def split_lyrics_into_stanzas(text):
+    """Split plain lyrics into stanzas using blank lines as separators."""
+    if not text or not str(text).strip():
+        return []
+    lines = str(text).replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    return _group_into_stanzas(lines, lambda line: line.strip() == "")
+
+
+def split_chord_lines_into_stanzas(lines):
+    """Split processed ChordPro lines into stanzas using blank lines."""
+    if not lines:
+        return []
+    return _group_into_stanzas(lines, _is_blank_chord_line)
+
+
+def split_lyrics_into_slides(text, max_lines=None):
+    """Split plain lyrics into slides.
+
+    By default one slide per stanza. Pass max_lines to split long stanzas.
+    """
+    return _chunk_stanzas(split_lyrics_into_stanzas(text), max_lines)
+
+
+def split_chord_lines_into_slides(lines, max_lines=None):
+    """Split processed ChordPro lines into slides (same rules as plain lyrics)."""
+    return _chunk_stanzas(split_chord_lines_into_stanzas(lines), max_lines)

@@ -14,6 +14,9 @@ EXEMPT_URL_NAMES = {
     "setlist_detail",
     "setlist_export_txt",
     "setlist_reader",
+    "setlist_reader_sw",
+    "song_reader",
+    "song_reader_sw",
 }
 
 EXEMPT_URL_PREFIXES = ("/admin/", "/api/")

@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 
 from django.contrib import messages
 from django.contrib.auth import login
@@ -7,11 +8,17 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from rest_framework import viewsets
 
-from .chords import process_chordpro, strip_chords
+from .chords import (
+    process_chordpro,
+    split_chord_lines_into_stanzas,
+    split_lyrics_into_stanzas,
+    strip_chords,
+)
 from .forms import (
     CategoryForm,
     MemberAddForm,
@@ -625,39 +632,140 @@ def setlist_export_txt(request, setlist_id):
     return response
 
 
+def _build_reader_songs(entries):
+    """Build reader + presentation payloads from lyric entries."""
+    all_songs = []
+    for i, entry in enumerate(entries):
+        processed_lines = process_chordpro(
+            entry.get("lyrics") or "",
+            original_key=entry.get("original_key") or "",
+            target_key=entry.get("target_key") or "",
+            notation=entry.get("notation") or "english",
+        )
+        all_songs.append({
+            "index": i,
+            "title": entry.get("title") or "",
+            "chord": entry.get("chord") or "",
+            "processed_lines": processed_lines,
+            "plain_lyrics": strip_chords(entry.get("lyrics") or ""),
+        })
+
+    presentation_songs = []
+    for song in all_songs:
+        plain_stanzas = split_lyrics_into_stanzas(song["plain_lyrics"])
+        chord_stanzas = split_chord_lines_into_stanzas(song["processed_lines"])
+        stanza_count = max(len(plain_stanzas), len(chord_stanzas))
+        stanzas = []
+        for stanza_i in range(stanza_count):
+            plain_lines = (
+                plain_stanzas[stanza_i] if stanza_i < len(plain_stanzas) else []
+            )
+            chord_lines = (
+                chord_stanzas[stanza_i] if stanza_i < len(chord_stanzas) else []
+            )
+            if not plain_lines and not chord_lines:
+                continue
+            stanzas.append({
+                "plain_lines": plain_lines,
+                "chord_lines": chord_lines,
+            })
+        presentation_songs.append({
+            "title": song["title"],
+            "chord": song["chord"] or "",
+            "song_index": song["index"],
+            "stanzas": stanzas,
+        })
+    return all_songs, presentation_songs
+
+
 def setlist_reader(request, setlist_id):
     """Public reader page — single-page with all songs for offline sharing."""
     setlist = get_object_or_404(SetList, id=setlist_id)
     songs = list(setlist.songs.select_related("song").order_by("order"))
-    total = len(songs)
-
-    # Build full song data for every song (all rendered at once for offline use)
-    all_songs = []
-    for i, s in enumerate(songs):
-        processed_lines = process_chordpro(
-            s.song.lyrics,
-            original_key=s.song.original_key,
-            target_key=s.chord,
-            notation=setlist.chord_notation,
-        )
-        plain_lyrics = strip_chords(s.song.lyrics)
-        all_songs.append({
-            "index": i,
+    entries = [
+        {
             "title": s.song.title,
             "chord": s.chord,
-            "processed_lines": processed_lines,
-            "plain_lyrics": plain_lyrics,
-        })
-
+            "lyrics": s.song.lyrics,
+            "original_key": s.song.original_key,
+            "target_key": s.chord,
+            "notation": setlist.chord_notation,
+        }
+        for s in songs
+    ]
+    all_songs, presentation_songs = _build_reader_songs(entries)
     return render(
         request,
         "app/setlist_reader.html",
         {
             "setlist": setlist,
-            "total": total,
+            "total": len(all_songs),
             "all_songs": all_songs,
+            "presentation_songs": presentation_songs,
+            "present_on_load": request.GET.get("present") == "1",
+            "reader_sw_url": reverse("setlist_reader_sw", args=[setlist.pk]),
         },
     )
+
+
+@login_required
+def song_reader(request, pk):
+    """Presentation/reader for a single song."""
+    song = get_object_or_404(Song, pk=pk, organization=request.active_organization)
+    notation = request.GET.get("notation", "english")
+    if notation not in ("english", "latin"):
+        notation = "english"
+    entries = [
+        {
+            "title": song.title,
+            "chord": song.original_key,
+            "lyrics": song.lyrics,
+            "original_key": song.original_key,
+            "target_key": song.original_key,
+            "notation": notation,
+        }
+    ]
+    all_songs, presentation_songs = _build_reader_songs(entries)
+    reader_setlist = SimpleNamespace(title=song.title, date="", pk=song.pk)
+    return render(
+        request,
+        "app/setlist_reader.html",
+        {
+            "setlist": reader_setlist,
+            "total": 1,
+            "all_songs": all_songs,
+            "presentation_songs": presentation_songs,
+            "present_on_load": request.GET.get("present") != "0",
+            "reader_sw_url": reverse("song_reader_sw", args=[song.pk]),
+        },
+    )
+
+
+def setlist_reader_sw(request, setlist_id=None, pk=None):
+    """Service worker so the public reader/presentation can be reused offline."""
+    script = """
+const CACHE = 'songlib-present-v1';
+self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+self.addEventListener('activate', event => {
+  event.waitUntil(self.clients.claim());
+});
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    fetch(event.request).then(response => {
+      const copy = response.clone();
+      caches.open(CACHE).then(cache => cache.put(event.request, copy));
+      return response;
+    }).catch(() => caches.match(event.request).then(cached => {
+      return cached || Promise.reject(event.request);
+    }))
+  );
+});
+"""
+    response = HttpResponse(script, content_type="application/javascript")
+    response["Cache-Control"] = "no-cache"
+    return response
 
 
 class SetListSongViewSet(viewsets.ModelViewSet):

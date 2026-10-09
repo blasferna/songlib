@@ -202,6 +202,35 @@
             box-shadow: 0 0 6px var(--accent);
         }
 
+        .toggle-btn svg {
+            display: none;
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 639px) {
+            .toggle-btn {
+                padding: 0.4rem;
+                min-width: 36px;
+                min-height: 36px;
+                justify-content: center;
+                gap: 0;
+            }
+            .toggle-btn .toggle-dot,
+            .toggle-btn .toggle-label {
+                display: none;
+            }
+            .toggle-btn svg {
+                display: block;
+            }
+        }
+
         /* ═══════ COVER PAGE ═══════ */
         .cover {
             flex: 1;
@@ -607,6 +636,367 @@
             .lyrics-container { padding-left: 2rem; padding-right: 2rem; }
         }
 
+        /* ═══════ PRESENTATION MODE ═══════ */
+        body.presentation-active {
+            overflow: hidden;
+        }
+
+        body.presentation-active .header,
+        body.presentation-active .page,
+        body.presentation-active .bottom-nav,
+        body.presentation-active .song-drawer,
+        body.presentation-active .drawer-overlay {
+            display: none !important;
+        }
+
+        .cover-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 2.5rem;
+        }
+
+        .cover-present {
+            border-color: var(--chord-color);
+            color: var(--chord-color);
+        }
+
+        .cover-present:hover {
+            border-color: var(--chord-color);
+            color: var(--text-primary);
+            background: var(--chord-glow);
+        }
+
+        .presentation-root {
+            --present-bg: #05070c;
+            --present-text: #f4efe6;
+            --present-muted: #8a8578;
+            --present-accent: #d4a253;
+            --present-border: #1e2738;
+            --present-chrome: linear-gradient(to bottom, rgba(5, 7, 12, 0.95), transparent);
+            --present-accent-soft: #d4a25322;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: var(--present-bg);
+            color: var(--present-text);
+            display: none;
+            flex-direction: column;
+        }
+
+        .presentation-root.theme-light {
+            --present-bg: #f6f1e6;
+            --present-text: #1c1914;
+            --present-muted: #6b6458;
+            --present-accent: #9a6b1f;
+            --present-border: #d4cbb8;
+            --present-chrome: linear-gradient(to bottom, rgba(246, 241, 230, 0.96), transparent);
+            --present-accent-soft: #9a6b1f22;
+        }
+
+        .presentation-root.active {
+            display: flex;
+        }
+
+        .presentation-black {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .presentation-black.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .presentation-chrome {
+            position: relative;
+            z-index: 20;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            padding: 0.65rem 1.25rem;
+            padding-top: max(0.65rem, env(safe-area-inset-top));
+            background: var(--present-chrome);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            color: var(--present-muted);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .presentation-chrome.hidden {
+            opacity: 0;
+            transform: translateY(-100%);
+            pointer-events: none;
+        }
+
+        .presentation-chrome-title {
+            color: var(--present-text);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 28vw;
+        }
+
+        .presentation-chrome-key {
+            color: var(--present-accent);
+            margin-left: 0.5rem;
+        }
+
+        .presentation-chrome-counter {
+            color: var(--present-muted);
+            text-align: center;
+            flex-shrink: 0;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: inherit;
+            letter-spacing: inherit;
+            cursor: pointer;
+            padding: 0.3rem 0.6rem;
+            border-radius: 100px;
+        }
+
+        .presentation-chrome-counter:hover {
+            color: var(--present-text);
+            background: var(--present-accent-soft);
+        }
+
+        .presentation-chrome-right {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            flex-shrink: 0;
+        }
+
+        .presentation-mode-btn,
+        .presentation-exit-btn {
+            padding: 0.3rem 0.7rem;
+            border: 1px solid var(--present-border);
+            border-radius: 100px;
+            background: transparent;
+            color: var(--present-muted);
+            font-family: inherit;
+            font-size: inherit;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .presentation-mode-btn:hover,
+        .presentation-exit-btn:hover {
+            border-color: var(--present-accent);
+            color: var(--present-accent);
+        }
+
+        .presentation-mode-btn.active {
+            border-color: var(--present-accent);
+            color: var(--present-accent);
+            background: var(--present-accent-soft);
+        }
+
+        .presentation-stage {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem 1.75rem 1.75rem;
+            min-height: 0;
+            min-width: 0;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .presentation-slide {
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        .presentation-slide.is-ready {
+            opacity: 1;
+        }
+
+        .presentation-title-slide {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .presentation-fit-target {
+            display: block;
+            width: max-content;
+            max-width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .presentation-title-main,
+        .presentation-title-key,
+        .presentation-lyrics {
+            font-size: 1em;
+        }
+
+        .presentation-title-slide .presentation-fit-target {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+
+        .presentation-title-main {
+            font-weight: 600;
+            line-height: 1.12;
+            letter-spacing: -0.02em;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .presentation-title-key {
+            margin-top: 0.35em;
+            font-family: 'DM Mono', monospace;
+            font-weight: 500;
+            color: var(--present-accent);
+            letter-spacing: 0.12em;
+        }
+
+        .presentation-lyrics {
+            font-family: 'Lora', Georgia, serif;
+            font-weight: 500;
+            line-height: 1.45;
+            margin: 0;
+            background: none;
+            border: none;
+            color: inherit;
+        }
+
+        .presentation-lyric-line {
+            display: block;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            text-align: center;
+        }
+
+        .presentation-chords {
+            text-align: center;
+            display: block;
+            width: 100%;
+        }
+
+        .presentation-chords .chord-line-wrapper {
+            margin-bottom: 0.15em;
+            display: flex;
+            justify-content: center;
+        }
+
+        .presentation-chords .chord-line-content {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .presentation-chords .chord-annotation {
+            --chord-font-family: 'DM Mono', monospace;
+            --chord-color: var(--present-accent);
+            --chord-font-weight: 500;
+        }
+
+        .presentation-chords .chord-text {
+            --text-font-family: 'Lora', Georgia, serif;
+            --text-color: var(--present-text);
+            font-weight: 500;
+        }
+
+        .presentation-picker {
+            position: absolute;
+            inset: 0;
+            z-index: 25;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 1.5rem 2rem;
+            background: rgba(5, 7, 12, 0.82);
+        }
+
+        .presentation-root.theme-light .presentation-picker {
+            background: rgba(246, 241, 230, 0.86);
+        }
+
+        .presentation-picker.open {
+            display: flex;
+        }
+
+        .presentation-picker-list {
+            list-style: none;
+            max-width: 520px;
+            width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+            background: var(--present-bg);
+            border: 1px solid var(--present-border);
+            border-radius: 16px;
+            padding: 0.5rem;
+        }
+
+        .presentation-picker-list button {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.8rem 0.9rem;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--present-muted);
+            font-family: 'Lora', Georgia, serif;
+            font-size: 1.05rem;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .presentation-picker-list button:hover,
+        .presentation-picker-list button.active {
+            background: var(--present-accent-soft);
+            color: var(--present-text);
+        }
+
+        .presentation-picker-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            width: 1.8rem;
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+
+        .presentation-picker-title {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .presentation-picker-key {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--present-accent);
+            flex-shrink: 0;
+        }
+
         @media print {
             .header, .bottom-nav, .song-drawer, .drawer-overlay { display: none !important; }
             body { background: white; color: #1a1a1a; }
@@ -626,13 +1016,20 @@
                 <span class="header-song-key" id="headerKey" style="display:none;"></span>
             </div>
             <div class="header-right" id="headerRight" style="display:none;">
-                <button class="toggle-btn toggle-fit" id="fitToggle" onclick="toggleFit()" aria-pressed="false" title="{% trans 'Fit to screen' %}">
+                <button class="toggle-btn" id="presentToggle" onclick="enterPresentationFromReader()" title="{% trans 'Present' %}" aria-label="{% trans 'Present' %}">
                     <span class="toggle-dot"></span>
-                    {% trans "Fit" %}
+                    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    <span class="toggle-label">{% trans "Present" %}</span>
                 </button>
-                <button class="toggle-btn" id="chordToggle" onclick="toggleChords()" aria-pressed="false">
+                <button class="toggle-btn toggle-fit" id="fitToggle" onclick="toggleFit()" aria-pressed="false" title="{% trans 'Fit to screen' %}" aria-label="{% trans 'Fit to screen' %}">
                     <span class="toggle-dot"></span>
-                    {% trans "Chords" %}
+                    <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                    <span class="toggle-label">{% trans "Fit" %}</span>
+                </button>
+                <button class="toggle-btn" id="chordToggle" onclick="toggleChords()" aria-pressed="false" title="{% trans 'Chords' %}" aria-label="{% trans 'Chords' %}">
+                    <span class="toggle-dot"></span>
+                    <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                    <span class="toggle-label">{% trans "Chords" %}</span>
                 </button>
             </div>
         </div>
@@ -643,7 +1040,7 @@
         <div class="cover">
             <div class="cover-card">
                 <h1 class="cover-title">{{ setlist.title }}</h1>
-                <div class="cover-date">{{ setlist.date }}</div>
+                {% if setlist.date %}<div class="cover-date">{{ setlist.date }}</div>{% endif %}
                 <div class="cover-divider"></div>
                 {% if all_songs %}
                 <ol class="cover-songs">
@@ -716,9 +1113,68 @@
         </div>
     </nav>
 
+    <!-- PRESENTATION OVERLAY -->
+    <div class="presentation-root" id="presentationRoot" aria-hidden="true">
+        <div class="presentation-black" id="presentationBlack"></div>
+        <header class="presentation-chrome" id="presentationChrome">
+            <div class="presentation-chrome-left">
+                <span class="presentation-chrome-title" id="presentationChromeTitle"></span>
+                <span class="presentation-chrome-key" id="presentationChromeKey"></span>
+            </div>
+            <button type="button" class="presentation-chrome-counter" id="presentationCounter" onclick="event.stopPropagation(); togglePresentationPicker();" aria-label="{% trans 'Song list' %}"></button>
+            <div class="presentation-chrome-right">
+                <button type="button" class="presentation-mode-btn" id="modeStanza" onclick="setPresentationMode('stanza')">
+                    {% trans "By stanza" %}
+                </button>
+                <button type="button" class="presentation-mode-btn" id="modeLines" onclick="setPresentationMode('lines')">
+                    {% trans "By lines" %}
+                </button>
+                <button type="button" class="presentation-mode-btn" id="themeDark" onclick="setPresentationTheme('dark')">
+                    {% trans "Dark" %}
+                </button>
+                <button type="button" class="presentation-mode-btn" id="themeLight" onclick="setPresentationTheme('light')">
+                    {% trans "Light" %}
+                </button>
+                <button type="button" class="presentation-mode-btn" onclick="downloadPresentationOffline()">
+                    {% trans "Download" %}
+                </button>
+                <button type="button" class="presentation-exit-btn" onclick="exitPresentation()">
+                    {% trans "Exit presentation" %}
+                </button>
+            </div>
+        </header>
+        <main class="presentation-stage" id="presentationStage">
+            <div class="presentation-slide" id="presentationSlide"></div>
+            <div class="presentation-picker" id="presentationPicker" onclick="if (event.target === this) closePresentationPicker();">
+                <ul class="presentation-picker-list" id="presentationPickerList"></ul>
+            </div>
+        </main>
+    </div>
+
+    {{ presentation_songs|json_script:"presentation-songs-data" }}
+
     <script>
         var TOTAL = {{ total }};
         var SETLIST_TITLE = "{{ setlist.title|escapejs }}";
+        var PRESENT_ON_LOAD = {{ present_on_load|yesno:"true,false" }};
+        function parseJsonScript(id) {
+            var el = document.getElementById(id);
+            if (!el) return [];
+            var data = JSON.parse(el.textContent);
+            if (typeof data === 'string') {
+                try { data = JSON.parse(data); } catch (err) { data = []; }
+            }
+            return Array.isArray(data) ? data : [];
+        }
+        var PRESENTATION_SONGS = parseJsonScript('presentation-songs-data');
+        var PRESENTATION_SLIDES = [];
+        var LINES_PER_SLIDE = 1;
+        var presentationMode = sessionStorage.getItem('presentMode') || 'stanza';
+        var presentationTheme = sessionStorage.getItem('presentTheme') || 'dark';
+        var presentationActive = false;
+        var presentationSlideIndex = 0;
+        var presentationBlack = false;
+        var chromeHideTimer = null;
         var currentIndex = -1; // -1 = cover
 
         function goToSong(index) {
@@ -946,8 +1402,560 @@
             if (o) o.classList.remove('visible');
         }
 
+        /* ═══════ Presentation mode ═══════ */
+        function chunkLines(lines, size) {
+            if (!lines || !lines.length) return [];
+            if (presentationMode !== 'lines') return [lines];
+            var chunks = [];
+            for (var i = 0; i < lines.length; i += size) {
+                chunks.push(lines.slice(i, i + size));
+            }
+            return chunks;
+        }
+
+        function buildPresentationSlides() {
+            PRESENTATION_SLIDES = [];
+            for (var si = 0; si < PRESENTATION_SONGS.length; si++) {
+                var song = PRESENTATION_SONGS[si];
+                PRESENTATION_SLIDES.push({
+                    type: 'title',
+                    title: song.title,
+                    chord: song.chord,
+                    song_index: song.song_index
+                });
+                var stanzas = song.stanzas || [];
+                for (var st = 0; st < stanzas.length; st++) {
+                    var stanza = stanzas[st];
+                    var plainChunks = chunkLines(stanza.plain_lines || [], LINES_PER_SLIDE);
+                    var chordChunks = chunkLines(stanza.chord_lines || [], LINES_PER_SLIDE);
+                    var n = Math.max(plainChunks.length, chordChunks.length);
+                    for (var c = 0; c < n; c++) {
+                        PRESENTATION_SLIDES.push({
+                            type: 'stanza',
+                            title: song.title,
+                            chord: song.chord,
+                            song_index: song.song_index,
+                            plain_lines: plainChunks[c] || [],
+                            chord_lines: chordChunks[c] || []
+                        });
+                    }
+                }
+            }
+            updatePresentationModeButtons();
+            applyPresentationTheme();
+            renderPresentationPicker();
+        }
+
+        function updatePresentationModeButtons() {
+            var stanzaBtn = document.getElementById('modeStanza');
+            var linesBtn = document.getElementById('modeLines');
+            if (stanzaBtn) stanzaBtn.classList.toggle('active', presentationMode === 'stanza');
+            if (linesBtn) linesBtn.classList.toggle('active', presentationMode === 'lines');
+        }
+
+        function applyPresentationTheme() {
+            var root = document.getElementById('presentationRoot');
+            if (!root) return;
+            root.classList.toggle('theme-light', presentationTheme === 'light');
+            var lightBtn = document.getElementById('themeLight');
+            var darkBtn = document.getElementById('themeDark');
+            if (lightBtn) lightBtn.classList.toggle('active', presentationTheme === 'light');
+            if (darkBtn) darkBtn.classList.toggle('active', presentationTheme === 'dark');
+        }
+
+        function setPresentationTheme(theme) {
+            if (theme !== 'light' && theme !== 'dark') return;
+            presentationTheme = theme;
+            sessionStorage.setItem('presentTheme', theme);
+            applyPresentationTheme();
+        }
+
+        function togglePresentationTheme() {
+            setPresentationTheme(presentationTheme === 'light' ? 'dark' : 'light');
+        }
+
+        function setPresentationMode(mode) {
+            if (mode !== 'stanza' && mode !== 'lines') return;
+            var current = PRESENTATION_SLIDES[presentationSlideIndex];
+            presentationMode = mode;
+            sessionStorage.setItem('presentMode', mode);
+            buildPresentationSlides();
+            if (current) {
+                presentationSlideIndex = slideIndexForSong(
+                    current.song_index,
+                    current.type === 'title'
+                );
+            }
+            if (presentationSlideIndex >= PRESENTATION_SLIDES.length) {
+                presentationSlideIndex = 0;
+            }
+            if (presentationActive) renderPresentationSlide();
+        }
+
+        function slideIndexForSong(songIndex, preferTitle) {
+            var first = 0;
+            for (var i = 0; i < PRESENTATION_SLIDES.length; i++) {
+                var s = PRESENTATION_SLIDES[i];
+                if (s.song_index === songIndex) {
+                    if (preferTitle && s.type === 'title') return i;
+                    if (!preferTitle && s.type === 'stanza') return i;
+                    if (!first) first = i;
+                }
+            }
+            return first;
+        }
+
+        function enterPresentationFromReader() {
+            buildPresentationSlides();
+            if (!PRESENTATION_SLIDES.length) return;
+            var start = currentIndex >= 0 ? slideIndexForSong(currentIndex, true) : 0;
+            enterPresentation(start);
+        }
+
+        function renderPresentationPicker() {
+            var list = document.getElementById('presentationPickerList');
+            if (!list) return;
+            list.innerHTML = '';
+            for (var i = 0; i < PRESENTATION_SONGS.length; i++) {
+                var song = PRESENTATION_SONGS[i];
+                var item = document.createElement('li');
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.setAttribute('data-song-index', String(song.song_index));
+                btn.onclick = (function(idx) {
+                    return function(e) {
+                        e.stopPropagation();
+                        jumpToPresentationSong(idx);
+                    };
+                })(song.song_index);
+                var num = document.createElement('span');
+                num.className = 'presentation-picker-num';
+                num.textContent = String(song.song_index + 1);
+                var title = document.createElement('span');
+                title.className = 'presentation-picker-title';
+                title.textContent = song.title;
+                btn.appendChild(num);
+                btn.appendChild(title);
+                if (song.chord) {
+                    var key = document.createElement('span');
+                    key.className = 'presentation-picker-key';
+                    key.textContent = song.chord;
+                    btn.appendChild(key);
+                }
+                item.appendChild(btn);
+                list.appendChild(item);
+            }
+        }
+
+        function updatePresentationPickerActive() {
+            var slide = PRESENTATION_SLIDES[presentationSlideIndex];
+            var currentSong = slide ? slide.song_index : -1;
+            var buttons = document.querySelectorAll('#presentationPickerList button');
+            for (var i = 0; i < buttons.length; i++) {
+                var idx = parseInt(buttons[i].getAttribute('data-song-index'), 10);
+                buttons[i].classList.toggle('active', idx === currentSong);
+            }
+        }
+
+        function togglePresentationPicker() {
+            var picker = document.getElementById('presentationPicker');
+            if (!picker) return;
+            if (picker.classList.contains('open')) {
+                closePresentationPicker();
+            } else {
+                openPresentationPicker();
+            }
+        }
+
+        function openPresentationPicker() {
+            var picker = document.getElementById('presentationPicker');
+            if (!picker) return;
+            updatePresentationPickerActive();
+            picker.classList.add('open');
+            showPresentationChrome();
+            var active = document.querySelector('#presentationPickerList button.active');
+            if (active) {
+                setTimeout(function() {
+                    active.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }, 50);
+            }
+        }
+
+        function closePresentationPicker() {
+            var picker = document.getElementById('presentationPicker');
+            if (picker) picker.classList.remove('open');
+        }
+
+        function jumpToPresentationSong(songIndex) {
+            closePresentationPicker();
+            presentationSlideIndex = slideIndexForSong(songIndex, true);
+            renderPresentationSlide();
+        }
+
+        function isPresentationPickerOpen() {
+            var picker = document.getElementById('presentationPicker');
+            return !!(picker && picker.classList.contains('open'));
+        }
+
+        function enterPresentation(startIndex) {
+            buildPresentationSlides();
+            if (!PRESENTATION_SLIDES.length) return;
+            closeDrawer();
+            presentationActive = true;
+            presentationBlack = false;
+            presentationSlideIndex = startIndex || 0;
+            if (presentationSlideIndex >= PRESENTATION_SLIDES.length) {
+                presentationSlideIndex = 0;
+            }
+
+            var root = document.getElementById('presentationRoot');
+            root.classList.add('active');
+            root.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('presentation-active');
+
+            document.getElementById('presentationBlack').classList.remove('visible');
+            closePresentationPicker();
+            applyPresentationTheme();
+            requestPresentationFullscreen();
+            renderPresentationSlide();
+            showPresentationChrome();
+        }
+
+        function exitPresentation() {
+            if (!presentationActive) return;
+            presentationActive = false;
+            presentationBlack = false;
+
+            var root = document.getElementById('presentationRoot');
+            root.classList.remove('active');
+            root.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('presentation-active');
+            document.getElementById('presentationBlack').classList.remove('visible');
+            closePresentationPicker();
+            exitPresentationFullscreen();
+            clearTimeout(chromeHideTimer);
+        }
+
+        function requestPresentationFullscreen() {
+            var el = document.documentElement;
+            if (el.requestFullscreen) {
+                el.requestFullscreen().catch(function() {});
+            }
+        }
+
+        function exitPresentationFullscreen() {
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen().catch(function() {});
+            }
+        }
+
+        function togglePresentationFullscreen() {
+            if (!document.fullscreenElement) {
+                requestPresentationFullscreen();
+            } else {
+                exitPresentationFullscreen();
+            }
+        }
+
+        function showPresentationChrome() {
+            var chrome = document.getElementById('presentationChrome');
+            if (!chrome) return;
+            chrome.classList.remove('hidden');
+            clearTimeout(chromeHideTimer);
+            chromeHideTimer = setTimeout(function() {
+                if (presentationActive && !chrome.matches(':hover')) {
+                    chrome.classList.add('hidden');
+                }
+            }, 4000);
+        }
+
+        function presentationShowChords() {
+            return sessionStorage.getItem('showChords') === '1';
+        }
+
+        function togglePresentationChords() {
+            var show = !presentationShowChords();
+            sessionStorage.setItem('showChords', show ? '1' : '0');
+            renderPresentationSlide();
+        }
+
+        function togglePresentationBlack() {
+            presentationBlack = !presentationBlack;
+            document.getElementById('presentationBlack').classList.toggle(
+                'visible',
+                presentationBlack
+            );
+        }
+
+        function renderPresentationSlide() {
+            var slide = PRESENTATION_SLIDES[presentationSlideIndex];
+            var container = document.getElementById('presentationSlide');
+            if (!slide || !container) return;
+
+            container.classList.remove('is-ready');
+            container.innerHTML = '';
+            var showChords = presentationShowChords() && slide.type === 'stanza';
+
+            document.getElementById('presentationChromeTitle').textContent = slide.title;
+            var keyEl = document.getElementById('presentationChromeKey');
+            if (slide.chord) {
+                keyEl.textContent = slide.chord;
+                keyEl.style.display = '';
+            } else {
+                keyEl.textContent = '';
+                keyEl.style.display = 'none';
+            }
+
+            document.getElementById('presentationCounter').textContent =
+                (presentationSlideIndex + 1) + ' / ' + PRESENTATION_SLIDES.length;
+
+            if (slide.type === 'title') {
+                var wrap = document.createElement('div');
+                wrap.className = 'presentation-title-slide';
+                var fit = document.createElement('div');
+                fit.className = 'presentation-fit-target';
+                var h = document.createElement('div');
+                h.className = 'presentation-title-main';
+                h.textContent = slide.title;
+                fit.appendChild(h);
+                if (slide.chord) {
+                    var k = document.createElement('div');
+                    k.className = 'presentation-title-key';
+                    k.textContent = slide.chord;
+                    fit.appendChild(k);
+                }
+                wrap.appendChild(fit);
+                container.appendChild(wrap);
+            } else {
+                var block = document.createElement('div');
+                block.className = 'presentation-fit-target';
+                if (showChords && slide.chord_lines && slide.chord_lines.length) {
+                    block.appendChild(renderPresentationChords(slide.chord_lines));
+                } else {
+                    block.appendChild(renderPresentationLyrics(slide.plain_lines || []));
+                }
+                container.appendChild(block);
+            }
+
+            var target = container.querySelector('.presentation-fit-target');
+            var stage = document.getElementById('presentationStage');
+            fitPresentationContent(target);
+            if (stage && stage.clientHeight < 40) {
+                requestAnimationFrame(function() {
+                    fitPresentationContent(target);
+                    container.classList.add('is-ready');
+                });
+            } else {
+                container.classList.add('is-ready');
+            }
+            updatePresentationPickerActive();
+        }
+
+        function renderPresentationLyrics(lines) {
+            var wrap = document.createElement('div');
+            wrap.className = 'presentation-lyrics';
+            for (var i = 0; i < lines.length; i++) {
+                var row = document.createElement('div');
+                row.className = 'presentation-lyric-line';
+                row.textContent = lines[i] ? lines[i] : '\u00a0';
+                wrap.appendChild(row);
+            }
+            return wrap;
+        }
+
+        function renderPresentationChords(lines) {
+            var wrap = document.createElement('div');
+            wrap.className = 'presentation-chords';
+            for (var li = 0; li < lines.length; li++) {
+                var lw = document.createElement('div');
+                lw.className = 'chord-line-wrapper';
+                var lc = document.createElement('div');
+                lc.className = 'chord-line-content';
+                var line = lines[li];
+                for (var si = 0; si < line.length; si++) {
+                    var seg = line[si];
+                    var pair = document.createElement('span');
+                    pair.className = 'chord-pair';
+                    var ann = document.createElement('span');
+                    ann.className = 'chord-annotation';
+                    ann.textContent = seg.chord || '';
+                    var txt = document.createElement('span');
+                    txt.className = 'chord-text';
+                    txt.textContent = seg.text || '';
+                    pair.appendChild(ann);
+                    pair.appendChild(txt);
+                    lc.appendChild(pair);
+                }
+                lw.appendChild(lc);
+                wrap.appendChild(lw);
+            }
+            return wrap;
+        }
+
+        function fitPresentationContent(content) {
+            if (!content) return;
+
+            var stage = document.getElementById('presentationStage');
+            if (!stage) return;
+            var maxW = Math.max(80, stage.clientWidth - 24);
+            var maxH = Math.max(80, stage.clientHeight - 24);
+            content.style.maxWidth = maxW + 'px';
+
+            var isTitleSlide = content.closest('.presentation-title-slide');
+            var maxPx = isTitleSlide ? 96 : 120;
+            var minPx = 14;
+            var best = minPx;
+
+            function applySize(px) {
+                content.style.fontSize = px + 'px';
+                content.style.setProperty('--text-font-size', px + 'px');
+                content.style.setProperty(
+                    '--chord-font-size',
+                    Math.max(10, Math.round(px * 0.42)) + 'px'
+                );
+            }
+
+            while (minPx <= maxPx) {
+                var mid = (minPx + maxPx) >> 1;
+                applySize(mid);
+                if (content.scrollWidth <= maxW + 2 && content.scrollHeight <= maxH + 2) {
+                    best = mid;
+                    minPx = mid + 1;
+                } else {
+                    maxPx = mid - 1;
+                }
+            }
+            applySize(best);
+        }
+
+        function downloadPresentationOffline() {
+            var html = document.documentElement.outerHTML;
+            html = html.replace(/PRESENT_ON_LOAD = (true|false)/, 'PRESENT_ON_LOAD = true');
+            html = html.replace(/<link[^>]*fonts\.(googleapis|gstatic)[^>]*>/gi, '');
+            html = html.replace(/<link[^>]*rel=["']preconnect["'][^>]*>/gi, '');
+            var blob = new Blob(['<!DOCTYPE html>\n', html], {
+                type: 'text/html;charset=utf-8'
+            });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            var name = (SETLIST_TITLE || 'presentacion').replace(/[\\/:*?"<>|]+/g, ' ').trim();
+            a.href = url;
+            a.download = name + '.html';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+        }
+
+        function presentationPrev() {
+            if (!presentationActive) return;
+            if (presentationSlideIndex > 0) {
+                presentationSlideIndex--;
+                renderPresentationSlide();
+            }
+        }
+
+        function presentationNext() {
+            if (!presentationActive) return;
+            if (presentationSlideIndex < PRESENTATION_SLIDES.length - 1) {
+                presentationSlideIndex++;
+                renderPresentationSlide();
+            }
+        }
+
+        var presentationRoot = document.getElementById('presentationRoot');
+        if (presentationRoot) {
+            presentationRoot.addEventListener('mousemove', showPresentationChrome);
+        }
+        var presentationStage = document.getElementById('presentationStage');
+        if (presentationStage) {
+            presentationStage.addEventListener('click', function(e) {
+                if (!presentationActive) return;
+                if (isPresentationPickerOpen()) return;
+                if (e.target.closest('#presentationChrome')) return;
+                if (e.target.closest('#presentationPicker')) return;
+                var rect = presentationStage.getBoundingClientRect();
+                if (e.clientX < rect.left + rect.width / 2) {
+                    presentationPrev();
+                } else {
+                    presentationNext();
+                }
+            });
+        }
+        var presentationChrome = document.getElementById('presentationChrome');
+        if (presentationChrome) {
+            presentationChrome.addEventListener('mouseenter', function() {
+                clearTimeout(chromeHideTimer);
+                presentationChrome.classList.remove('hidden');
+            });
+            presentationChrome.addEventListener('mouseleave', showPresentationChrome);
+        }
+
+        window.addEventListener('resize', function() {
+            if (presentationActive) {
+                var target = document.querySelector('#presentationSlide .presentation-fit-target');
+                fitPresentationContent(target);
+            }
+        });
+
+        buildPresentationSlides();
+        if ((PRESENT_ON_LOAD || location.protocol === 'file:') && PRESENTATION_SLIDES.length) {
+            enterPresentation(0);
+        }
+        {% if reader_sw_url %}
+        if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+            navigator.serviceWorker.register("{{ reader_sw_url }}").catch(function() {});
+        }
+        {% endif %}
+
         /* ═══════ Keyboard navigation ═══════ */
         document.addEventListener('keydown', function(e) {
+            if (presentationActive) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    if (isPresentationPickerOpen()) {
+                        closePresentationPicker();
+                    } else {
+                        exitPresentation();
+                    }
+                    return;
+                }
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' ||
+                    e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+                    e.preventDefault();
+                    if (document.activeElement && document.activeElement.blur) {
+                        document.activeElement.blur();
+                    }
+                    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                        presentationPrev();
+                    } else {
+                        presentationNext();
+                    }
+                    return;
+                }
+                if (e.key === 'b' || e.key === 'B') {
+                    e.preventDefault();
+                    togglePresentationBlack();
+                    return;
+                }
+                if (e.key === 'c' || e.key === 'C') {
+                    e.preventDefault();
+                    togglePresentationChords();
+                    return;
+                }
+                if (e.key === 'f' || e.key === 'F') {
+                    e.preventDefault();
+                    togglePresentationFullscreen();
+                    return;
+                }
+                if (e.key === 't' || e.key === 'T') {
+                    e.preventDefault();
+                    togglePresentationTheme();
+                    return;
+                }
+                return;
+            }
+
             if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
                 e.preventDefault();
                 goPrev();
@@ -959,7 +1967,7 @@
             if (e.key === 'c' || e.key === 'C') toggleChords();
             if (e.key === 'f' || e.key === 'F') toggleFit();
             if (e.key === 'Escape') closeDrawer();
-        });
+        }, true);
 
         /* ═══════ Touch swipe ═══════ */
         var touchStartX = 0, touchStartY = 0;
@@ -972,7 +1980,13 @@
             var dx = e.changedTouches[0].screenX - touchStartX;
             var dy = e.changedTouches[0].screenY - touchStartY;
             if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-                if (dx > 0) {
+                if (presentationActive) {
+                    if (dx > 0) {
+                        presentationPrev();
+                    } else {
+                        presentationNext();
+                    }
+                } else if (dx > 0) {
                     goPrev();
                 } else {
                     goNext();
