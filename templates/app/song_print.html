@@ -142,6 +142,7 @@
             <a href="{% url 'song_print' song.pk %}?{% if include_chords %}chords=1&notation={{ notation }}&{% endif %}fs={{ font_size_up }}">+</a>
         </div>
         <div class="group">
+            <a href="{% url 'song_reader' song.pk %}" class="print-btn">{% trans "Present" %}</a>
             <button class="print-btn" onclick="window.print()">🖨 {% trans "Print" %}</button>
         </div>
     </div>

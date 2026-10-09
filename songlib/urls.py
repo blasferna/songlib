@@ -66,6 +66,12 @@ urlpatterns = [
     path("songs/<int:pk>/edit/", views.song_edit, name="song_edit"),
     path("songs/<int:pk>/delete/", views.song_delete, name="song_delete"),
     path("songs/<int:pk>/print/", views.song_print, name="song_print"),
+    path("songs/<int:pk>/reader/", views.song_reader, name="song_reader"),
+    path(
+        "songs/<int:pk>/reader/sw.js",
+        views.setlist_reader_sw,
+        name="song_reader_sw",
+    ),
     path("songs/search/", views.song_search_api, name="song_search_api"),
     path("users/search/", views.user_search_api, name="user_search_api"),
     # Categories
@@ -112,6 +118,11 @@ urlpatterns = [
         "setlist/<int:setlist_id>/reader/",
         views.setlist_reader,
         name="setlist_reader",
+    ),
+    path(
+        "setlist/<int:setlist_id>/reader/sw.js",
+        views.setlist_reader_sw,
+        name="setlist_reader_sw",
     ),
     # API & Admin
     path("api/", include(router.urls)),

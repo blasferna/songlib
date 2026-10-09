@@ -633,6 +633,56 @@ msgstr "Lista de canciones"
 msgid "Next song"
 msgstr "Siguiente canción"
 
+#: templates/app/setlist_list.html templates/app/setlist_reader.html
+#: templates/app/setlist_form.html templates/app/song_list.html
+#: templates/app/song_form.html templates/app/song_print.html
+msgid "Present"
+msgstr "Presentar"
+
+#: templates/app/setlist_reader.html
+msgid "By stanza"
+msgstr "Por estrofas"
+
+#: templates/app/setlist_reader.html
+msgid "By lines"
+msgstr "Por líneas"
+
+#: templates/app/setlist_reader.html
+msgid "Dark"
+msgstr "Oscuro"
+
+#: templates/app/setlist_reader.html
+msgid "Light"
+msgstr "Claro"
+
+#: templates/app/setlist_reader.html
+msgid "Smaller text"
+msgstr "Texto más chico"
+
+#: templates/app/setlist_reader.html
+msgid "Larger text"
+msgstr "Texto más grande"
+
+#: templates/app/setlist_reader.html
+msgid "Download offline"
+msgstr "Descargar para usar sin conexión"
+
+#: templates/app/setlist_reader.html
+msgid "Download"
+msgstr "Descargar"
+
+#: templates/app/setlist_reader.html
+msgid "Exit presentation"
+msgstr "Salir de presentación"
+
+#: templates/app/setlist_reader.html
+msgid "Previous"
+msgstr "Anterior"
+
+#: templates/app/setlist_reader.html
+msgid "Next"
+msgstr "Siguiente"
+
 #: templates/app/song_form.html:4 templates/app/song_form.html:169
 msgid "Edit Song"
 msgstr "Editar canción"
